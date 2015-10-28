@@ -1,9 +1,7 @@
 within Annex60.Experimental.Pipe.BaseClasses;
-model PDETime_modified "Delay time for given normalized velocity"
+model PDETime_modified_OneDirection "Delay time for given normalized velocity"
 
   Real x( start = 0) "Normalized transport quantity";
-  Modelica.SIunits.Time TimeOut_a
-    "Time at which the fluid is leaving the pipe at port_a";
   Modelica.SIunits.Time TimeOut_b
     "Time at which the fluid is leaving the pipe at port_b";
   parameter Modelica.SIunits.Length len = 100 "length";
@@ -13,15 +11,15 @@ model PDETime_modified "Delay time for given normalized velocity"
   Modelica.SIunits.Time track4;
   Modelica.SIunits.Time track5;
   Modelica.SIunits.Time track6;
-  Modelica.SIunits.Time trackStart;
-  Modelica.SIunits.Time trackEnd;
   Modelica.SIunits.Time RealTime;
-  Modelica.SIunits.Time tau_a;
   Modelica.SIunits.Time tau_b;
 
   Boolean Check1;
   Boolean Check_u;
   Real accel;
+
+  Boolean accel_a;
+  Boolean accel_b;
   Boolean v_a "Is the fluid flowing from a to b?";
   Boolean v_b "Is the fluid flowing from b to a?";
 
@@ -39,15 +37,10 @@ equation
   RealTime = time;
 
   //Spatial distribution of the time
-  (TimeOut_a,TimeOut_b) = spatialDistribution(time,time,x/len,u>=0,{0.0,1.0},{0.0,0.0});
-  tau_a = max(0,Annex60.Utilities.Math.Functions.smoothMax(time - TimeOut_a,0,1));
+  (,TimeOut_b) = spatialDistribution(time,time,x/len,u>=0,{0.0,1.0},{0.0,0.0});
   tau_b = max(0,time - TimeOut_b);
 
-  if u >= 0 then
-    tau = max(0,tau_b);
-  else
-    tau = max(0,tau_a);
-  end if;
+  tau = max(0,tau_b);
 
   if u>0 and tau_b <= 0 then
     Check1 = true;
@@ -57,8 +50,11 @@ equation
 
   Check_u = u>=0;
 
-  v_a   =  (u  >=   Modelica.Constants.eps);
-  v_b   =  (u  <=  -Modelica.Constants.eps);
+  accel_a = (accel  >   Modelica.Constants.eps);
+  accel_b = (accel  >  -Modelica.Constants.eps);
+
+  v_a   =  (u  >  Modelica.Constants.eps);
+  v_b   =  (u  < -Modelica.Constants.eps);
 
   when (change(v_b)) and v_a == false and v_b == false then
     track1 = pre(time);
@@ -82,17 +78,12 @@ equation
     track4 = pre(time);
   end when;
 
-  trackStart = max(track3,track4);
-  trackEnd   = max(track5,track6);
-
-/*
-when time-TimeOut_a > (trackEnd-trackStart) and v_b then
-    reinit(track3,0);
-    reinit(track4,0);
-    reinit(track5,0);
-    reinit(track6,0);
-end when;
-*/
+/*  
+  when time-TimeOut_a > (track2-track1) and v_b then
+    reinit(track1,0);
+    reinit(track2,0);
+  end when;
+  */
 
   annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}}), graphics), Icon(coordinateSystem(
@@ -141,4 +132,4 @@ First implementation.
 </li>
 </ul>
 </html>"));
-end PDETime_modified;
+end PDETime_modified_OneDirection;

@@ -54,14 +54,14 @@ equation
 
   // Time delay
   der(x) = v;
-  v = abs(V_flow / A_cross);
+  v = (V_flow / A_cross);
   (, time_out_b) = spatialDistribution(time,
                                        time,
                                        x/length,
                                        v>=0,
                                        {0.0, 1.0},
                                        {0.0, 0.0});
-  tau = time - time_out_b;
+  tau = max(0,time - time_out_b);
 
   // Heat losses
   Tin_a = inStream(port_a.h_outflow) / cp_default;

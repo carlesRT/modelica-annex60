@@ -70,7 +70,7 @@ model PipeHeatLossKUL_Reverse
         extent={{-10,-10},{10,10}},
         rotation=270,
         origin={2,50})));
-  BaseClasses.PDETime_modified            pDETime
+  BaseClasses.PDETime_modified            pDETime(len=length)
     annotation (Placement(transformation(extent={{-34,74},{-14,94}})));
   Modelica.Blocks.Sources.RealExpression realExpression(y=u)
     annotation (Placement(transformation(extent={{-100,74},{-80,94}})));
