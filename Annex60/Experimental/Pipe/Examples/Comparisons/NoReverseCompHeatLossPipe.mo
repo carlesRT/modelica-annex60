@@ -142,10 +142,10 @@ model NoReverseCompHeatLossPipe
   Modelica.Blocks.Sources.Constant const2(
                                          k=273.15 + 5)
     annotation (Placement(transformation(extent={{-22,-108},{-2,-88}})));
-  Modelica.Blocks.Sources.CombiTimeTable combiTimeTable(smoothness=Modelica.Blocks.Types.Smoothness.LinearSegments,
-      table=[0,1; 3000,1; 5000,0; 10000,0; 12000,1; 17000,1; 19000,0; 30000,0;
-        32000,1; 50000,1; 52000,0; 80000,0; 82000,1; 100000,1; 102000,0; 150000,
-        0; 152000,1; 160000,1; 162000,0; 163500,0; 165500,1; 200000,1])
+  Modelica.Blocks.Sources.CombiTimeTable combiTimeTable(smoothness=Modelica.Blocks.Types.Smoothness.LinearSegments, table=[0,
+        1; 3000,1; 5000,0; 10000,0; 12000,-1; 17000,-1; 19000,0; 30000,0; 32000,
+        1; 50000,1; 52000,0; 80000,0; 82000,-1; 100000,-1; 102000,0; 150000,0;
+        152000,1; 160000,1; 162000,0; 163500,0; 165500,1; 200000,1])
     annotation (Placement(transformation(extent={{-190,60},{-170,80}})));
   Modelica.Blocks.Math.Gain gain(k=dp_test)
     annotation (Placement(transformation(extent={{-150,60},{-130,80}})));

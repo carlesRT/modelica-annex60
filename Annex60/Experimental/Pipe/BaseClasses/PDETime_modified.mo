@@ -15,6 +15,7 @@ model PDETime_modified "Delay time for given normalized velocity"
   Modelica.SIunits.Time track6;
   Modelica.SIunits.Time trackStart;
   Modelica.SIunits.Time trackEnd;
+  Modelica.SIunits.Time DeltaTrack;
   Modelica.SIunits.Time RealTime;
   Modelica.SIunits.Time tau_a;
   Modelica.SIunits.Time tau_b;
@@ -22,6 +23,7 @@ model PDETime_modified "Delay time for given normalized velocity"
   Boolean Check1;
   Boolean Check_u;
   Real accel;
+  Real Eps;
   Boolean v_a "Is the fluid flowing from a to b?";
   Boolean v_b "Is the fluid flowing from b to a?";
 
@@ -39,8 +41,8 @@ equation
   RealTime = time;
 
   //Spatial distribution of the time
-  (TimeOut_a,TimeOut_b) = spatialDistribution(time,time,x/len,u>=0,{0.0,1.0},{0.0,0.0});
-  tau_a = max(0,Annex60.Utilities.Math.Functions.smoothMax(time - TimeOut_a,0,1));
+  (TimeOut_a,TimeOut_b) = spatialDistribution(time,time,x/len,u >= 0,{0.0,1.0},{0.0,0.0});
+  tau_a = max(0,Annex60.Utilities.Math.Functions.smoothMax(time - TimeOut_a,DeltaTrack,1));
   tau_b = max(0,time - TimeOut_b);
 
   if u >= 0 then
@@ -57,8 +59,9 @@ equation
 
   Check_u = u>=0;
 
-  v_a   =  (u  >=   Modelica.Constants.eps);
-  v_b   =  (u  <=  -Modelica.Constants.eps);
+  Eps   = 100000 * Modelica.Constants.eps;
+  v_a   =  (u  >=   Eps);
+  v_b   =  (u  <=  -Eps);
 
   when (change(v_b)) and v_a == false and v_b == false then
     track1 = pre(time);
@@ -84,15 +87,15 @@ equation
 
   trackStart = max(track3,track4);
   trackEnd   = max(track5,track6);
+  DeltaTrack = trackEnd - trackStart;
 
-/*
-when time-TimeOut_a > (trackEnd-trackStart) and v_b then
+when time-TimeOut_a > (DeltaTrack) and v_b then
     reinit(track3,0);
     reinit(track4,0);
     reinit(track5,0);
     reinit(track6,0);
+   // reinit(DeltaTrack,0);
 end when;
-*/
 
   annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}}), graphics), Icon(coordinateSystem(

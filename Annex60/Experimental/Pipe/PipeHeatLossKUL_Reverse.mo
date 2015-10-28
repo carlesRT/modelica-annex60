@@ -240,7 +240,7 @@ equation
       color={0,0,127},
       smooth=Smooth.None));
   connect(switch1.u2, booleanExpression1.y) annotation (Line(
-      points={{-38,-76},{-22,-76},{-22,-76},{0,-76},{0,-72},{20,-72}},
+      points={{-38,-76},{0,-76},{0,-72},{20,-72}},
       color={255,0,255},
       smooth=Smooth.None));
   connect(booleanExpression1.y, switch2.u2) annotation (Line(
