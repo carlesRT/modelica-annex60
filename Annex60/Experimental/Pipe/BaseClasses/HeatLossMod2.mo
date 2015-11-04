@@ -15,11 +15,15 @@ model HeatLossMod2 "Heat loss model for pipe"
     "Cross sectional area";
 
   parameter Real C;
+  Boolean vB;
+  Real eps;
   parameter Real R;
   final parameter Real tau_char=R*C;
 
   Modelica.SIunits.Time time_out_b "Virtual time after delay at port b";
   Modelica.SIunits.Time tau "Time delay for input time";
+
+  Modelica.SIunits.Time Rtime "current Time";
 
   Modelica.SIunits.Length x(start=0)
     "Spatial coordiante for spatialDistribution operator";
@@ -48,17 +52,29 @@ public
         origin={0,100})));
 equation
   dp = 0;
+  Rtime = time;
 
   port_a.h_outflow = inStream(port_b.h_outflow);
   port_b.h_outflow = Tout_b * cp_default;
 
+  eps = 1000000*Modelica.Constants.eps;
+
+  when change(vB) then
+  end when;
+
+  if v  >= -eps then
+    vB = true;
+  else
+    vB= false;
+  end if;
+
   // Time delay
   der(x) = v;
   v = ((V_flow / A_cross));
-  (, time_out_b) = spatialDistribution(time,
+  (,time_out_b) = spatialDistribution(time,
                                        time,
                                        x/length,
-                                       v>=0,
+                                       vB,
                                        {0.0, 1.0},
                                        {0.0, 0.0});
   tau = max(0,time - time_out_b);

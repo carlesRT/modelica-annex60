@@ -120,7 +120,8 @@ equation
   connect(heatLossReverse.port_a, pipeAdiabaticPlugFlow.port_a)
     annotation (Line(points={{-40,-1.33227e-015},{-10,0}}, color={0,127,255}));
   connect(pipeAdiabaticPlugFlow.port_b, heatLoss.port_a)
-    annotation (Line(points={{10,0},{40,0}}, color={0,127,255}));
+    annotation (Line(points={{10,0},{26,0},{40,0}},
+                                             color={0,127,255}));
   connect(heatLoss.port_b, port_b)
     annotation (Line(points={{60,0},{100,0}}, color={0,127,255}));
   connect(port_a, heatLossReverse.port_b)

@@ -165,8 +165,9 @@ equation
     annotation (experiment(StopTime=200000, __Dymola_NumberOfIntervals=5000),
 __Dymola_Commands(file="modelica://Annex60/Resources/Scripts/Dymola/Experimental/PipeAdiabatic/PipeAdiabatic_TStep.mos"
         "Simulate and plot"),
-    Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-200,-180},{160,
-            140}}), graphics),
+    Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-200,-180},{
+            160,140}}),
+                    graphics),
     Documentation(info="<html>
 <p>This example compares the KUL and A60 pipe with heat loss implementations.</p>
 <p>This is only a first glimpse at the general behavior. Next step is to parameterize 

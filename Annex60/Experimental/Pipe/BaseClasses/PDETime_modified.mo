@@ -87,15 +87,16 @@ equation
 
   trackStart = max(track3,track4);
   trackEnd   = max(track5,track6);
-  DeltaTrack = trackEnd - trackStart;
+  DeltaTrack = abs(trackEnd - trackStart);
 
-when time-TimeOut_a > (DeltaTrack) and v_b then
+/*when time-TimeOut_a > (DeltaTrack) and v_b then
     reinit(track3,0);
     reinit(track4,0);
     reinit(track5,0);
     reinit(track6,0);
    // reinit(DeltaTrack,0);
 end when;
+*/
 
   annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}}), graphics), Icon(coordinateSystem(
