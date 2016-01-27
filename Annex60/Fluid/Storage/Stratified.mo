@@ -11,7 +11,12 @@ model Stratified "Model of a stratified tank for thermal energy storage"
   parameter Modelica.SIunits.Length dIns "Thickness of insulation";
   parameter Modelica.SIunits.ThermalConductivity kIns = 0.04
     "Specific heat conductivity of insulation";
-  parameter Integer nSeg(min=2) = 2 "Number of volume segments";
+
+  parameter Modelica.SIunits.Length h_port_a(min=0, max=hTan)
+    "Height of inlet/outlet port_a compared to bottom tank";
+  parameter Modelica.SIunits.Length h_port_b(min=0, max=hTan)
+    "Height of inlet/outlet port_a compared to bottom tank";
+  parameter Integer nSeg(min=2) = 20 "Number of volume segments";
 
   ////////////////////////////////////////////////////////////////////
   // Assumptions
@@ -60,7 +65,7 @@ model Stratified "Model of a stratified tank for thermal energy storage"
     annotation (Placement(transformation(extent={{14,68},{26,80}})));
   Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heaPorBot
     "Heat port tank bottom (outside insulation). Leave unconnected for adiabatic condition"
-    annotation (Placement(transformation(extent={{14,-80},{26,-68}})));
+    annotation (Placement(transformation(extent={{14,-70},{26,-58}})));
 
   // Models
   Buildings.Fluid.MixingVolumes.MixingVolume[nSeg] vol(
@@ -72,7 +77,7 @@ model Stratified "Model of a stratified tank for thermal energy storage"
     each X_start=X_start,
     each C_start=C_start,
     each V=VTan/nSeg,
-    each nPorts=1,
+    each nPorts=3,
     each m_flow_nominal=m_flow_nominal,
     each final mSenFac=1,
     each final m_flow_small=m_flow_small,
@@ -102,7 +107,7 @@ protected
     final tau=0,
     final allowFlowReversal=allowFlowReversal,
     final m_flow_small=m_flow_small) "Enthalpy flow rate at port a"
-    annotation (Placement(transformation(extent={{-60,-90},{-40,-70}})));
+    annotation (Placement(transformation(extent={{-70,-90},{-50,-70}})));
   Buildings.Fluid.Sensors.EnthalpyFlowRate[nSeg - 1] H_vol_flow(
     redeclare package Medium = Medium,
     each final m_flow_nominal=m_flow_nominal,
@@ -153,18 +158,42 @@ protected
   Modelica.Thermal.HeatTransfer.Components.ThermalCollector theCol(m=nSeg)
     "Connector to assign multiple heat ports to one heat port"
     annotation (Placement(transformation(extent={{46,20},{58,32}})));
+public
+  BaseClasses.JetInflow jetInflow(
+    redeclare package Medium = Medium,
+    nSeg=nSeg,
+    m_flow_nominal=m_flow_nominal,
+    Vlay=vol.V,
+    D=2*sqrt((VTan/hTan)/Modelica.Constants.pi),
+    hIn=h_port_a,
+    d=d,
+    hLay={(i - 0.5)*hTan/nSeg for i in 1:nSeg})
+    annotation (Placement(transformation(extent={{-40,-90},{-20,-70}})));
+  BaseClasses.JetInflow outflow(
+    redeclare package Medium = Medium,
+    nSeg=nSeg,
+    m_flow_nominal=m_flow_nominal,
+    Vlay=vol.V,
+    hIn=h_port_b,
+    D=2*sqrt((VTan/hTan)/Modelica.Constants.pi),
+    d=d,
+    hLay={(i - 0.5)*hTan/nSeg for i in 1:nSeg})
+    annotation (Placement(transformation(extent={{40,-90},{20,-70}})));
+  parameter Modelica.SIunits.Length d "Diameter of inlets";
 equation
   connect(H_b_flow.port_b, port_b) annotation (Line(points={{70,-80},{80,-80},{80,
           5.55112e-16},{100,5.55112e-16}}, color={0,127,255}));
   for i in 1:(nSeg-1) loop
 
-    connect(vol[i].ports[1], H_vol_flow[i].port_a) annotation (Line(points={{16,
-            -16},{16,-20},{-28,-20},{-28,-40},{-20,-40}}, color={0,127,255}));
-    connect(H_vol_flow[i].port_b, vol[i + 1].ports[1]) annotation (Line(points={
-            {5.55112e-16,-40},{4,-40},{4,-16},{16,-16}}, color={0,127,255}));
+    connect(vol[i].ports[1], H_vol_flow[i].port_a) annotation (Line(points={{13.3333,
+            -16},{13.3333,-20},{-28,-20},{-28,-40},{-20,-40}},
+                                                          color={0,127,255}));
+    connect(H_vol_flow[i].port_b, vol[i + 1].ports[1]) annotation (Line(points={{
+            5.55112e-16,-40},{4,-40},{4,-16},{13.3333,-16}},
+                                                         color={0,127,255}));
   end for;
   connect(port_a, H_a_flow.port_a) annotation (Line(points={{-100,5.55112e-16},{
-          -80,5.55112e-16},{-80,-80},{-60,-80}}, color={0,127,255}));
+          -80,5.55112e-16},{-80,-80},{-70,-80}}, color={0,127,255}));
   for i in 1:nSeg-1 loop
   // heat conduction between fluid nodes
      connect(vol[i].heatPort, conFlu[i].port_a)    annotation (Line(points={{6,-6},{
@@ -172,6 +201,7 @@ equation
     connect(vol[i+1].heatPort, conFlu[i].port_b)    annotation (Line(points={{6,-6},{
             -40,-6},{-40,11},{-42,11}},  color={191,0,0}));
   end for;
+
   connect(vol[1].heatPort, conTop.port_a)    annotation (Line(points={{6,-6},{6,
           60},{10,60}},                      color={191,0,0}));
   connect(vol.heatPort, conWal.port_a)    annotation (Line(points={{6,-6},{6,40},
@@ -192,7 +222,7 @@ equation
   connect(heaFloTop.port_b, heaPorTop) annotation (Line(points={{42,60},{52,60},
           {52,74},{20,74}}, color={191,0,0}));
   connect(heaFloBot.port_b, heaPorBot) annotation (Line(points={{42,20},{44,20},
-          {44,-74},{20,-74}}, color={191,0,0}));
+          {44,-64},{20,-64}}, color={191,0,0}));
   connect(heaFloTop.Q_flow, mul.u1[1]) annotation (Line(points={{36,54},{50,54},
           {50,52.5},{61.2,52.5}}, color={0,0,127}));
   connect(heaFloSid.Q_flow, mul.u2) annotation (Line(points={{36,34},{50,34},{
@@ -211,7 +241,16 @@ equation
       points={{52,20},{52,-2.22045e-16},{56,-2.22045e-16}},
       color={191,0,0},
       smooth=Smooth.None));
-  annotation (
+  connect(jetInflow.port_a, H_a_flow.port_b)
+    annotation (Line(points={{-40,-80},{-50,-80}}, color={0,127,255}));
+  connect(outflow.port_a, H_b_flow.port_a)
+    annotation (Line(points={{40,-80},{46,-80},{50,-80}}, color={0,127,255}));
+  connect(jetInflow.ports_b[1:nSeg], vol[1:nSeg].ports[2])    annotation (Line(points={{-20,-80},
+          {-20,-16},{16,-16}},               color={0,127,255}));
+  connect(outflow.ports_b[1:nSeg], vol[1:nSeg].ports[3])    annotation (Line(points={{20,-80},
+          {20,-16},{18.6667,-16}},           color={0,127,255}));
+
+    annotation (
 defaultComponentName="tan",
 Documentation(info="<html>
 <p>
@@ -419,5 +458,7 @@ Icon(graphics={
         Line(
           points={{22,-74},{70,-74},{70,72}},
           color={127,0,0},
-          pattern=LinePattern.Dot)}));
+          pattern=LinePattern.Dot)}),
+    Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+            100}})));
 end Stratified;
