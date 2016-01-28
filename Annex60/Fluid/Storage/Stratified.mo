@@ -77,7 +77,7 @@ model Stratified "Model of a stratified tank for thermal energy storage"
     each X_start=X_start,
     each C_start=C_start,
     each V=VTan/nSeg,
-    each nPorts=3,
+    nPorts={if i==1 or i==nSeg then 3 else 4 for i in 1:nSeg},
     each m_flow_nominal=m_flow_nominal,
     each final mSenFac=1,
     each final m_flow_small=m_flow_small,
@@ -185,14 +185,12 @@ equation
           5.55112e-16},{100,5.55112e-16}}, color={0,127,255}));
   for i in 1:(nSeg-1) loop
 
-    connect(vol[i].ports[1], H_vol_flow[i].port_a) annotation (Line(points={{13.3333,
-            -16},{13.3333,-20},{-28,-20},{-28,-40},{-20,-40}},
-                                                          color={0,127,255}));
-    connect(H_vol_flow[i].port_b, vol[i + 1].ports[1]) annotation (Line(points={{
-            5.55112e-16,-40},{4,-40},{4,-16},{13.3333,-16}},
-                                                         color={0,127,255}));
+    connect(vol[i].ports[3], H_vol_flow[i].port_a) annotation (Line(points={{16,-16},
+            {16,-20},{-28,-20},{-28,-40},{-20,-40}},      color={0,127,255}));
+    connect(H_vol_flow[i].port_b, vol[i + 1].ports[if i==nSeg -1 then 3 else 4]) annotation (Line(points={{
+            5.55112e-16,-40},{4,-40},{4,-16},{16,-16}},  color={0,127,255}));
   end for;
-  connect(port_a, H_a_flow.port_a) annotation (Line(points={{-100,5.55112e-16},{
+   connect(port_a, H_a_flow.port_a) annotation (Line(points={{-100,5.55112e-16},{
           -80,5.55112e-16},{-80,-80},{-70,-80}}, color={0,127,255}));
   for i in 1:nSeg-1 loop
   // heat conduction between fluid nodes
@@ -245,10 +243,10 @@ equation
     annotation (Line(points={{-40,-80},{-50,-80}}, color={0,127,255}));
   connect(outflow.port_a, H_b_flow.port_a)
     annotation (Line(points={{40,-80},{46,-80},{50,-80}}, color={0,127,255}));
-  connect(jetInflow.ports_b[1:nSeg], vol[1:nSeg].ports[2])    annotation (Line(points={{-20,-80},
+  connect(jetInflow.ports_b[1:nSeg], vol[1:nSeg].ports[1])    annotation (Line(points={{-20,-80},
           {-20,-16},{16,-16}},               color={0,127,255}));
-  connect(outflow.ports_b[1:nSeg], vol[1:nSeg].ports[3])    annotation (Line(points={{20,-80},
-          {20,-16},{18.6667,-16}},           color={0,127,255}));
+  connect(outflow.ports_b[1:nSeg], vol[1:nSeg].ports[2])    annotation (Line(points={{20,-80},
+          {20,-16},{16,-16}},                color={0,127,255}));
 
     annotation (
 defaultComponentName="tan",
