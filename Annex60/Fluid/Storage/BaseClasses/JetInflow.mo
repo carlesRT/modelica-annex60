@@ -14,6 +14,9 @@ model JetInflow "Model for simulating jet inflow"
     "Layer thicknesses";
   parameter Modelica.SIunits.Length hTan = max(dLay/2+hLay)-min(hLay-dLay/2)
     "Tank height";
+
+  parameter Modelica.SIunits.Time tau = 60
+    "Mixing time constant for calculation of Froude number";
   parameter Real beta(final unit="K-1") = 0.43e-3
     "Volumetric expansion coefficient, default: water at approximately 50 degrees Celsius"
     annotation(Dialog(tab="Advanced"));
@@ -49,8 +52,7 @@ model JetInflow "Model for simulating jet inflow"
       Medium.temperature(Medium.setState_phX(port_a.p, hMix, wInj*inStream(ports_b.Xi_outflow)/wInjTot));
 
   Real Re = abs(port_a.m_flow)*coeff_Re "Reynolds number";
-  Real Fr = abs(port_a.m_flow)*coeff_Fr/max(0.01,abs(Tmix-Tin_a)^0.5)
-    "Froude number";
+  Real Fr "Froude number";
 
   Real zMix = max(minZMix, D*(7.09e-6*ResqrtDd*Fr^1.343*exp(-0.203e-6*ResqrtDd)));
   Real rMix = Re*Annex60.Utilities.Math.Functions.spliceFunction(x=port_a.m_flow,pos=0.007, neg=0.004, deltax=m_flow_nominal/1000);
@@ -89,6 +91,10 @@ protected
     "Height difference between inlet and outlets";
 
 equation
+  // The state for the Froude number decouples an algebraic loop
+  // that would otherwise couple the enthalpy calculations and the mass flow rate calculations
+  // this could possibly lead to very large algebraic loops
+  der(Fr) =  (abs(port_a.m_flow)*coeff_Fr/max(0.01,abs(Tmix-Tin_a)^0.5)-Fr)/tau;
   port_a.h_outflow= hMix;
   ports_b.h_outflow=fill(hMix,nSeg)*(1+rMix) - inStream(ports_b.h_outflow)*rMix
     "Enthalpy that should flow to volumes after applying conservation of energy to fictive mass flow rate";
