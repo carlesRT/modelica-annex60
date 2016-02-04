@@ -25,7 +25,7 @@ model JetInflow "Model for simulating jet inflow"
     annotation(Dialog(tab="Advanced"));
   Real[nSeg] wInj = if port_a.m_flow > 0
                     then Vlay.*{min(1,max(0,(1 -(dh[i]/zMix)^4)) +
-                                (if hIn<hLay[i]+dLay[i]/2 and Tmix >=Tin_b[i] and Tin_a>= Tin_b[i] or hIn>hLay[i]-dLay[i]/2 and Tmix <Tin_b[i] and Tin_a<Tin_b[i] then 1 else 0))
+                                (if hIn<hLay[i]+dLay[i]/2 and Tmix >=Tin_b[i] or hIn>hLay[i]-dLay[i]/2 and Tmix <Tin_b[i]  then 1 else 0))
                                   for i in 1:nSeg}
                     else Vlay.*{if dh[i]<dLay[i]/2 and dh[i]>-dLay[i]/2 then 1 else exp(-6*(dh[i]/zMix)^2) for i in 1:nSeg}
     "Weight for mass injection in each port";
@@ -48,11 +48,7 @@ model JetInflow "Model for simulating jet inflow"
               {if port_a.m_flow > 0 then
                   (XiIn_a[i]+coeffMix*XiIn_b[:,i])/(1+rMix)
                else wInj/wInjTot*XiIn_b[:,i] for i in 1:Medium.nXi};
-  Modelica.SIunits.Temperature Tmix=
-    if port_a.m_flow > 0 then
-      Medium.temperature(Medium.setState_phX(port_a.p, hMix, XiMix))
-    else
-      Medium.temperature(Medium.setState_phX(port_a.p, hMix, wInj*inStream(ports_b.Xi_outflow)/wInjTot));
+  Modelica.SIunits.Temperature Tmix;
 
   Real Re = abs(port_a.m_flow)*coeff_Re "Reynolds number";
   Real Fr "Froude number";
@@ -107,6 +103,12 @@ equation
   ports_b.m_flow = -port_a.m_flow*wInj/wInjTot;
   ports_b[1].p=port_a.p;
 
+  Tmix=
+    if port_a.m_flow > 0 then
+      Medium.temperature(Medium.setState_phX(port_a.p, hMix, XiMix))
+    else
+      Medium.temperature(Medium.setState_phX(port_a.p, hMix, wInj*inStream(ports_b.Xi_outflow)/wInjTot));
   annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}})));
+
 end JetInflow;
