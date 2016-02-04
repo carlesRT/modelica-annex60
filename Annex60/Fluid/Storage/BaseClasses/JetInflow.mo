@@ -8,10 +8,13 @@ model JetInflow "Model for simulating jet inflow"
   parameter Modelica.SIunits.Volume Vlay[nSeg] "Volume of each layer";
   parameter Modelica.SIunits.Length d "Diameter of inlet";
   parameter Modelica.SIunits.Length D "Diameter of tank";
-  parameter Modelica.SIunits.Length hIn "Height of inlet center";
-  parameter Modelica.SIunits.Length hLay[nSeg] "Height of layer centers";
+  parameter Modelica.SIunits.Length hIn "Height of inlet center"
+    annotation(Evaluate=true);
+  parameter Modelica.SIunits.Length hLay[nSeg] "Height of layer centers"
+    annotation(Evaluate=true);
   parameter Modelica.SIunits.Length dLay[nSeg]=Vlay/(Modelica.Constants.pi*(D/2)^2)
-    "Layer thicknesses";
+    "Layer thicknesses"
+    annotation(Evaluate=true);
   parameter Modelica.SIunits.Length hTan = max(dLay/2+hLay)-min(hLay-dLay/2)
     "Tank height";
 
@@ -43,18 +46,18 @@ model JetInflow "Model for simulating jet inflow"
                 inStream(ports_b.h_outflow)*wInj/wInjTot;
   Real XiMix[Medium.nXi]=
               {if port_a.m_flow > 0 then
-                  (XiIn_a[i]+rMix*coeffMix*XiIn_b[:,i])/(1+rMix)
-               else coeffMix*XiIn_b[:,i] for i in 1:Medium.nXi};
+                  (XiIn_a[i]+coeffMix*XiIn_b[:,i])/(1+rMix)
+               else wInj/wInjTot*XiIn_b[:,i] for i in 1:Medium.nXi};
   Modelica.SIunits.Temperature Tmix=
     if port_a.m_flow > 0 then
-      Medium.temperature(Medium.setState_phX(port_a.p, hMix, inStream(port_a.Xi_outflow)))
+      Medium.temperature(Medium.setState_phX(port_a.p, hMix, XiMix))
     else
       Medium.temperature(Medium.setState_phX(port_a.p, hMix, wInj*inStream(ports_b.Xi_outflow)/wInjTot));
 
   Real Re = abs(port_a.m_flow)*coeff_Re "Reynolds number";
   Real Fr "Froude number";
 
-  Real zMix = max(minZMix, D*(7.09e-6*ResqrtDd*Fr^1.343*exp(-0.203e-6*ResqrtDd)));
+  Real zMix = max(d, D*(7.09e-6*ResqrtDd*Fr^1.343*exp(-0.203e-6*ResqrtDd)));
   Real rMix = Re*Annex60.Utilities.Math.Functions.spliceFunction(x=port_a.m_flow,pos=0.007, neg=0.004, deltax=m_flow_nominal/1000);
 
   function mixingCorrelation
@@ -74,7 +77,6 @@ protected
   Real XiIn_a[Medium.nXi];
   Real XiIn_b[nSeg,Medium.nXi];
   Real ResqrtDd=Re*sqrt(D/d) "Eliminated subexpression";
-  final parameter Real minZMix = max(d,0.6*hTan/nSeg);
   final parameter Medium.ThermodynamicState state_default = Medium.setState_pTX(
       T=Medium.T_default,
       p=Medium.p_default,
@@ -85,7 +87,7 @@ protected
   final parameter Real coeff_v = rho_default*Modelica.Constants.pi*d^2/4
     "Coefficient for converting mass flow rate to velocity";
   final parameter Real coeff_Re = rho_default*d/coeff_v/Medium.dynamicViscosity(state_default)
-    "Coefficient for efficient evaluation of Reynolds number";
+    "Coefficient for efficient evaluation of Reynolds number - fixme: non-default state?";
   final parameter Real coeff_Fr =  1/coeff_v/sqrt(Modelica.Constants.g_n*beta*D);
   final parameter Modelica.SIunits.Length dh[nSeg] = hLay-fill(hIn,nSeg)
     "Height difference between inlet and outlets";
@@ -100,7 +102,7 @@ equation
     "Enthalpy that should flow to volumes after applying conservation of energy to fictive mass flow rate";
   XiIn_a[1:Medium.nXi]=inStream(port_a.Xi_outflow);
   XiIn_b=inStream(ports_b.Xi_outflow);
-  ports_b.Xi_outflow=fill(XiMix,nSeg);
+  ports_b.Xi_outflow=fill(XiMix,nSeg) "fixme: see h";
   port_a.Xi_outflow=XiMix;
   ports_b.m_flow = -port_a.m_flow*wInj/wInjTot;
   ports_b[1].p=port_a.p;
