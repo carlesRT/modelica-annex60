@@ -1,0 +1,100 @@
+simulateModel("Annex60.Fluid.Storage.BaseClasses.BuoyancyModels.Examples.Buoyancy(buoyancyModel.nEle=2)", startTime=0, stopTime=500, method="dassl", resultFile="TestBuoyancynEle2");
+simulateModel("Annex60.Fluid.Storage.BaseClasses.BuoyancyModels.Examples.Buoyancy(buoyancyModel.nEle=5)", startTime=0, stopTime=500, method="dassl", resultFile="TestBuoyancynEle5"); 
+
+createPlot(
+ id = 1,
+ position = {0, 0, 600, 500},
+ filename = "TestBuoyancynEle2.mat",
+ y = {"vol_BOTTOM.T","vol_TOP.T"},
+  autoscale = true,
+ subPlot = 1,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1);
+
+createPlot(
+ id = 1,
+ position = {0, 0, 600, 500},
+ filename = "TestBuoyancynEle5.mat",
+ y = {"vol_BOTTOM.T","vol_TOP.T"},
+ autoscale = true,
+ erase = false,
+ subPlot = 1,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1);
+ 
+//Second Plot:
+ 
+createPlot(
+ id = 1,
+ position = {610, 0, 600, 500},
+ filename = "TestBuoyancynEle2.mat",
+ y = {"buoyancyModel.dT[1]"},
+ range = {0, 500, 0.0, 1000.0},
+ autoscale = true,
+ subPlot = 2,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1);
+createPlot(
+ id = 1,
+ position = {610, 0, 600, 500},
+ filename = "TestBuoyancynEle5.mat",
+ y = {"buoyancyModel.dT[1]"},
+ range = {0, 500, 0.0, 1000.0},
+ autoscale = true,
+ erase = false,
+ subPlot = 2,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1); 
+ 
+ 
+//Third Plot: 
+ createPlot(
+ id = 1,
+ position = {0, 0, 600, 500},
+ filename = "TestBuoyancynEle2.mat",
+ y = {"vol_TOP.heatPort.Q_flow","vol_BOTTOM.heatPort.Q_flow"},
+ autoscale = true,
+ subPlot = 3,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1);
+ 
+createPlot(
+ id = 1,
+ position = {0, 0, 600, 500},
+ filename = "TestBuoyancynEle5.mat",
+ y = {"vol_TOP.heatPort.Q_flow","vol_BOTTOM.heatPort.Q_flow"},
+ autoscale = true,
+ erase = false,
+ subPlot = 3,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1);
+  
+//Fourth Plot: 
+
+ createPlot(
+ id = 1,
+ position = {0, 0, 600, 500},
+ filename = "TestBuoyancynEle2.mat",
+ y = {"buoyancyModel.nEle"},
+ autoscale = true,
+ subPlot = 4,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1);
+createPlot(
+ id = 1,
+ position = {0, 0, 600, 500},
+ filename = "TestBuoyancynEle5.mat",
+ y = {"buoyancyModel.nEle"},
+ autoscale = true,
+ erase = false,
+ subPlot = 4,
+ grid = true,
+ leftTitleType = 1,
+ bottomTitleType = 1);
