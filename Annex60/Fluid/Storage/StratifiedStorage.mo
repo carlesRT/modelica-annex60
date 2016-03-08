@@ -442,11 +442,12 @@ equation
     <li>Set <code>PerfectlyIsolated</code> to true to switch off the heat losses to the environment, i.e. the thermal fluid storage is perfectly isolated. <br/>
     Note that if <code>PerfectlyIsolated</code> is set to false and no boundary condition is connected to the heatPort, the external heat flow rate will also be 0.
     However, because all layers are connected to the external heat port, a non-physical internal heat flow transfer between volumes takes place.</li>
+<li>A stratified inlet is not internally defined, instead an external model (<a href=\"modelica://Annex60.Fluid.Storage.BaseClasses.StratificationModel\">Stratification model package</a>) should be used in combination with the present model.</li>
     </ul>
     <h4>Notes</h4>
-    <p>The thermal fluid storage uses a model to increase heat exchange betweeen layers accounting for buoyancy effect, see <a href=\"modelica://Annex60.Technologies.ThermalStorages.BaseClasses.BuoyancyModels\">BuoyancyModels</a> </p>
+    <p>The thermal fluid storage uses a model to increase heat exchange betweeen layers accounting for buoyancy effect, see <a href=\"modelica://Annex60.Fluid.Storage.BaseClasses.BuoyancyModels\">BuoyancyModels</a> </p>
     <p><b>Assumption and limitations</b> </p>
-    <p>Up to date the model does not take into account the mixing caused by in and outflows and there is no model for a stratified inlet. </p>
+    <p>Up to date the model does not take into account the mixing caused by in and outflows.</p>
     </html>"),
   Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}})));
 end StratifiedStorage;
