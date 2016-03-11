@@ -51,7 +51,7 @@ model StratifiedStorage
     annotation (Placement(transformation(extent={{-42,-48},{-22,-28}})));
   Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(
     T = 298.15)
-    annotation (Placement(transformation(extent={{-52,52},{-32,72}})));
+    annotation (Placement(transformation(extent={{-60,80},{-40,100}})));
   Modelica.Blocks.Sources.Pulse m_flow2(
     offset = 0.0,
     amplitude = 0.2,
@@ -59,6 +59,8 @@ model StratifiedStorage
     period = 500.0,
     startTime = 1200.0) "Mass flow rate"
     annotation (Placement(transformation(extent={{76,-40},{56,-20}})));
+//  BaseClasses.StratificationEfficiency.MIXnumber mIXnumber(    redeclare package Medium = Medium,    H=2,    V_tank=1,    n=6) annotation (Placement(transformation(extent={{40,40},{60,60}})));
+
 equation
   connect(source1.ports[1], storage.port_a1) annotation (Line(
       points={{-22,-38},{-20,-38},{-20,-26},{-14,-26}},
@@ -85,12 +87,14 @@ equation
       color={0,127,255},
       smooth=Smooth.None));
   connect(fixedTemperature.port, storage.heatPort) annotation (Line(
-      points={{-32,62},{0,62},{0,12.8}},
+      points={{-40,90},{0,90},{0,12.8}},
       color={191,0,0},
       smooth=Smooth.None));
   annotation (    __Dymola_Commands(file="modelica://Annex60/Resources/Scripts/Dymola/Fluid/Storage/Examples/StratifiedStorage.mos"
         "Simulate and plot"), Documentation(info="<html>
 <p>Charging once cold through bottom inlet, twice through internal heat exchanger.</p>
 </html>"),
-    experiment(StopTime=2000));
+    experiment(StopTime=2000),
+    Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+            100}}), graphics));
 end StratifiedStorage;

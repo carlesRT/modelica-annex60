@@ -449,5 +449,6 @@ equation
     <p><b>Assumption and limitations</b> </p>
     <p>Up to date the model does not take into account the mixing caused by in and outflows.</p>
     </html>"),
-  Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}})));
+  Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,
+            100}}), graphics));
 end StratifiedStorage;
