@@ -6,7 +6,7 @@ model GlobalModel
    final massDynamics=Modelica.Fluid.Types.Dynamics.FixedInitial,
    final mSenFac=1);
 
-protected
+//protected
 final parameter Medium.ThermodynamicState state_start = Medium.setState_pTX(
       T=T_ref,
       p=p_start,
@@ -162,7 +162,11 @@ Model that characterise the transient behaviour of the fluid inside a cylindrica
 <li>It is assumed that the overall heat transfer coefficiet between the inner wall of the tank and ambient temperature are nearly the same, eqs 5.7, 5.8 and 5.9</li>
 </ul>
 
-<p>Some Information, such as thermal conductivity of the insulation material is missing, a value of 0.025 W/mK was assumed.</p>
+<h4>Considerations</h4>
+<p>Some Information, such as thermal conductivity of the insulation material and wall are missing, with the equations and other parameters information is theoretically possible to obtain this missing information. </p>
+<p>
+For instance, case v3 (see table 5.2 in pag. 143 of the reference) using eqs 5.8 and 5.20 yields thermal conductivity for the wall of 0.012 W/mK. This values is clearly too low for a stainless steel. (Trying to find out what is wrong...) 
+</p>
 
 <h4>References</h4>
 <p>Rodríguez Pérez, Ivette (2006) <a href=\"http://www.tdx.cat/handle/10803/6689/\">Unsteady laminar convection in cylindrical domains: numerical studies and application to solar water storage tanks</a> </p>
