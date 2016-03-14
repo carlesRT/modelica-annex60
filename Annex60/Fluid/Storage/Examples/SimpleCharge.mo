@@ -11,14 +11,15 @@ model SimpleCharge
     nEle=6,
     HX_2=false,
     HX_1=false,
-    T_start(displayUnit="degC") = 313.15)
+    T_start(displayUnit="degC") = 313.15,
+    V=0.4)
     annotation (Placement(transformation(extent={{-20,-28},{20,12}})));
   Modelica.Blocks.Sources.TimeTable
                                 m_flow1(
     startTime=500.0,
     offset=0.0,
-    table=[0.0,0.0; 500,0.0; 500,-(1/500*1000); 700,-(1/500*1000); 700,0.0; 900,
-        0; 900,1; 1100,1; 1100,0.0; 1300,0; 1300,-(1/500*1000); 1500,-(1/500*
+    table=[0.0,0.0; 500,0.0; 500,-(1/500*1000); 700,-(1/500*1000); 700,0.0; 800,
+        0; 800,1; 1100,1; 1100,0.0; 1300,0; 1300,-(1/500*1000); 1500,-(1/500*
         1000)]) "Mass flow rate"
     annotation (Placement(transformation(extent={{-100,-40},{-80,-20}})));
   Annex60.Fluid.Sources.Boundary_pT sink1(
@@ -43,11 +44,11 @@ model SimpleCharge
     annotation (Placement(transformation(extent={{-60,40},{-40,60}})));
   BaseClasses.StratificationEfficiency.MIXnumber mIXnumber(
     redeclare package Medium = Medium,
-    H=2,
-    V_tank=1,
-    n=6,
-    T_start=313.15)
-    annotation (Placement(transformation(extent={{40,40},{60,60}})));
+    T_start=storage.T_start,
+    H=storage.height,
+    V_tank=storage.V,
+    n=storage.nEle)
+    annotation (Placement(transformation(extent={{42,40},{62,60}})));
 equation
   connect(source1.ports[1], storage.port_a1) annotation (Line(
       points={{-22,-38},{-20,-38},{-20,-26},{-14,-26}},
@@ -70,11 +71,11 @@ equation
       color={0,0,127},
       smooth=Smooth.None));
   connect(mIXnumber.T_exp, storage.T) annotation (Line(
-      points={{40,57},{8,57},{8,58},{-32,58},{-32,4},{-14.8,4}},
+      points={{42,57},{8,57},{8,58},{-32,58},{-32,4},{-14.8,4}},
       color={0,0,127},
       smooth=Smooth.None));
   connect(mIXnumber.m_in, change_sign.y) annotation (Line(
-      points={{40,53},{38,53},{38,38},{-20,38},{-20,50},{-39,50}},
+      points={{42,53},{38,53},{38,38},{-20,38},{-20,50},{-39,50}},
       color={0,0,127},
       smooth=Smooth.None));
   annotation (    __Dymola_Commands(file="modelica://Annex60/Resources/Scripts/Dymola/Fluid/Storage/Examples/StratifiedStorage.mos"

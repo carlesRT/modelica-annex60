@@ -24,8 +24,9 @@ final parameter Modelica.SIunits.SpecificHeatCapacity cp_start=Medium.specificHe
   Modelica.SIunits.Energy E_mix "Energy mixed";
   Modelica.SIunits.Energy E_tank "tank current Energy";
 
-  Modelica.SIunits.Temperature T_str "Temperature stratified";
+  Modelica.SIunits.Temperature T_str_t "Temperature stratified - top";
   Modelica.SIunits.Temperature T_mix "Temperature mixed";
+  Modelica.SIunits.Temperature T_init( start = T_start) "Temperature mixed";
 
   Modelica.SIunits.Length y[n]
     "Distance from the Bottom of teh tank to the mid point of the volume layer i";
@@ -38,16 +39,13 @@ final parameter Modelica.SIunits.SpecificHeatCapacity cp_start=Medium.specificHe
   Modelica.SIunits.Volume   V[n] "Volume of each layer";
   parameter Integer n "number of Volumes";
 
-//Detect Charge/uncharge period.
-Boolean charge "In charge phase...";
-//
+  Boolean charge;
 
 Modelica.SIunits.Volume V_in "Introduced Volume";
-
-  Modelica.Blocks.Interfaces.RealInput T_exp[n] "Temperature experiment"
-    annotation (Placement(transformation(extent={{-120,50},{-80,90}})));
-  Modelica.Blocks.Interfaces.RealInput m_in "Temperature experiment"
-    annotation (Placement(transformation(extent={{-120,10},{-80,50}})));
+Modelica.SIunits.Volume V_in_use( start=0) "Limited introduced Volume";
+Modelica.SIunits.Volume V_in_lim( start=0) "Limited introduced Volume";
+Modelica.Blocks.Interfaces.RealInput T_exp[n] "Temperature experiment"    annotation (Placement(transformation(extent={{-120,50},{-80,90}})));
+Modelica.Blocks.Interfaces.RealInput m_in "Temperature experiment"    annotation (Placement(transformation(extent={{-120,10},{-80,50}})));
 equation
   for i in 1:n loop
     y[i] = (H/n)*(i-0.5);
@@ -55,30 +53,39 @@ equation
     E_exp[i] = (cp_start*rho_start*V[i]*T_exp[i]);
   end for;
   der(V_in) = m_in/rho_start;
-  // Energy
+
+  V_in_use = V_in-V_in_lim;
+
+  if m_in > 0 then
+    charge = true;
+  else
+    charge = false;
+  end if;
+
+  //Restart Volume and Temperature
+  when edge(charge) then
+    V_in_lim = pre(V_in);
+    T_init = pre(T_mix);
+  end when;
+
+// Energy
   E_tank  = cp_start*rho_start*V*T_exp;
-  E_str_b = cp_start*rho_start*(V_tank-V_in)*T_start;
+  E_str_b = cp_start*rho_start*max(0,(V_tank-min(V_in_use,V_tank)))*T_init;
   E_str_t = E_tank - E_str_b;
   E_mix = cp_start*rho_start*V_tank*T_mix;
-  // Temperature
+// Temperature
   T_mix = sum(T_exp / n);
-  T_str = if V_in <= 0 then 0 else E_str_t/(cp_start*rho_start*V_in);
-  // Calculation Momentum
+  T_str_t = if V_in_use <= 0 then 273.15 else max(273.15,E_str_t/(cp_start*rho_start*min(V_in_use,V_tank)));
+// Calculation Momentum
   y_b = (V_tank-V_in)/V_tank*H*0.5;
   y_t = H-(V_in)/V_tank*H*0.5;
-  //
+//
   Me_str = y_b*E_str_b + y_t*E_str_t;
   Me_exp = y*E_exp;
   Me_mix = 0.5*H*E_mix;
-  //
+//
 
-  if m_in <= 0 then
-    charge = false;
-  else
-    charge = true;
-  end if;
-
-  MIX = if Me_str > Me_exp then ((Me_str-Me_exp)/(Me_str-Me_mix)) else 0;
+MIX = if Me_str > Me_exp then ((Me_str-Me_exp)/(Me_str-Me_mix)) else 0;
 
  annotation (Documentation(info="<html>
 
