@@ -52,15 +52,17 @@ model SpatialDistributionOperator
       annotation (Placement(transformation(extent={{-158,88},{-138,108}})));
   Modelica.Blocks.Sources.Constant const3(k=5)
     annotation (Placement(transformation(extent={{0,60},{20,80}})));
-  Annex60.Experimental.Pipe.PipeHeatLoss_PipeDelay PipeDelayMod2(
+  Annex60.Experimental.Pipe.PipeHeatLoss_PipeDelayMod
+                                                   PipeDelayMod2(
     redeclare package Medium = Medium,
     m_flow_small=1e-4*0.5,
     diameter=diameter,
     length=length,
     m_flow_nominal=0.5,
     thicknessIns=0.02,
-    lambdaI=0.01)
-    annotation (Placement(transformation(extent={{14,-22},{34,-2}})));
+    lambdaI=0.01,
+    d_ext=diameter)
+    annotation (Placement(transformation(extent={{8,-22},{28,-2}})));
   Annex60.Fluid.Sensors.TemperatureTwoPort senTemA60In1(
                                                        redeclare package Medium
       = Medium, m_flow_nominal=0.5)
@@ -152,11 +154,11 @@ equation
   connect(add.y, sou1.p_in) annotation (Line(points={{-97,76},{-88,76},{-88,56},
           {-98,56},{-98,44},{-88,44}}, color={0,0,127}));
   connect(const3.y, PipeDelayMod2.T_amb) annotation (Line(
-      points={{21,70},{21,-2},{24,-2}},
+      points={{21,70},{21,-2},{18,-2}},
       color={0,0,127},
       smooth=Smooth.None));
   connect(PipeDelayMod2.port_a, senTemA60In1.port_b) annotation (Line(
-      points={{14,-12},{-36,-12}},
+      points={{8,-12},{-36,-12}},
       color={0,127,255},
       smooth=Smooth.None));
   connect(sou1.ports[1], senTemA60In1.port_a) annotation (Line(
@@ -164,7 +166,7 @@ equation
       color={0,127,255},
       smooth=Smooth.None));
   connect(PipeDelayMod2.port_b, senTemA60Out1.port_a) annotation (Line(
-      points={{34,-12},{50,-12}},
+      points={{28,-12},{50,-12}},
       color={0,127,255},
       smooth=Smooth.None));
   connect(senTemA60Out1.port_b, masFloA1.port_a) annotation (Line(
