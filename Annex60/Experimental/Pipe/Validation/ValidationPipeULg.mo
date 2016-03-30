@@ -17,8 +17,8 @@ package Medium = Annex60.Media.Water;
     diameter=0.05248,
     length=39,
     thicknessIns(displayUnit="mm") = 0.013,
-    lambdaI=0.12,
-    R=((1/(2*pipe.lambdaI)*log((0.0603/2+pipe.thicknessIns)/(0.0603/2)))+1/(5*(0.0603+2*pipe.thicknessIns)))/Modelica.Constants.pi)                                                                                                     annotation (Placement(transformation(
+    lambdaI=0.04,
+    d_ext=0.0603)                                                                                                     annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=0,
         origin={-34,0})));
@@ -94,7 +94,8 @@ equation
 <p>
 The example contains <a href=\"modelica://Annex60.Experimental.Pipe.Data.PipeDataULg150801\">
 experimental data</a> from a real district heating network. This data is used to validate pipe models.</p>
-<p>Pipe's temperature is not initialized, thus the first 70 seconds should be disregarded.</p>
+
+<p>Initial fluid temperature is unknow, thus the first 70 seconds should be disregarded.</p>
 
 <p><b><span style=\"color: #008000;\">Test bench schematic</span></b> </p>
 <p><img src=\"modelica://Annex60/Resources/Images/Experimental/ULgTestBench.png\" border=\"1\"/></p>
@@ -102,14 +103,14 @@ experimental data</a> from a real district heating network. This data is used to
 <p><b><span style=\"color: #008000;\">Calibration</span></b> </p>
 <p>
 There are some incertainties about the heat loss coefficient between pipe and surrounding air as well as regarding the heat conductivity of the insulation material. With the <a href=\"modelica://Annex60.Experimental.Pipe.Data.PipeDataULg150801\">
-given data</a>, the length specific thermal resistance <code>R = 1.21315 </code> (mK/W). <code>R</code> calculated as follows:
+given data</a>, the length specific thermal resistance <code>R = 2.164 </code> (mK/W). <code>R</code> calculated as follows:
 </p>
 <p>
-<code>R=((1/(2*pipe.lambdaI)*log((0.0603/2+pipe.thicknessIns)/(0.0603/2)))+1/(5*(0.0603+2*pipe.thicknessIns)))/Modelica.Constants.pi</code>  
+<code>R=((1/(2*pipe.lambdaI)*log((0.0603+2*pipe.thicknessIns)/(0.0603)))+1/(5*(0.0603+2*pipe.thicknessIns)))/Modelica.Constants.pi</code>  
 </p>
 <p>
-However, it is with <code> R = 0.028 </code> (mK/W) that good results for the outlet temperature when the inlet temperature is close to 68 °C are obtained. Furthermore, a value of <code> R = 0.0155 </code> (mK/W) gives better results for the outlet temperature when the inlet temperature is close to 48 °C.</p>
-<p> It seems that a correct value for <code>R</code> should be between 0.0155 (mK/W) and 0.028 (mK/W).</p>
+<code>U = 1/R = 0.462 W/mK </code> 
+</p>
 </html>", revisions="<html>
 <ul>
 <li>
