@@ -41,7 +41,8 @@ extends Modelica.Icons.Example;
     thicknessIns=0.045,
     lambdaI=0.024,
     R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18),
-    length=115)
+    length=115,
+    d_ext=0.0889)
     annotation (Placement(transformation(extent={{50,0},{30,20}})));
   PipeHeatLoss_PipeDelayMod pip4(
     redeclare package Medium = Medium,
@@ -50,8 +51,8 @@ extends Modelica.Icons.Example;
     diameter=0.0825,
     thicknessIns=0.045,
     lambdaI=0.024,
-    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18))
-                       annotation (Placement(transformation(
+    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18),
+    d_ext=0.0889)      annotation (Placement(transformation(
         extent={{-10,10},{10,-10}},
         rotation=90,
         origin={10,40})));
@@ -62,7 +63,8 @@ extends Modelica.Icons.Example;
     diameter=0.0825,
     lambdaI=0.024,
     thicknessIns=0.045,
-    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18))
+    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18),
+    d_ext=0.0889)
     annotation (Placement(transformation(extent={{0,0},{-20,20}})));
   PipeHeatLoss_PipeDelayMod pip2(
     redeclare package Medium = Medium,
@@ -71,8 +73,8 @@ extends Modelica.Icons.Example;
     diameter=0.0825,
     thicknessIns=0.045,
     lambdaI=0.024,
-    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18))
-                       annotation (Placement(transformation(
+    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18),
+    d_ext=0.0889)      annotation (Placement(transformation(
         extent={{10,-10},{-10,10}},
         rotation=-90,
         origin={-70,40})));
@@ -83,8 +85,8 @@ extends Modelica.Icons.Example;
     diameter=0.0825,
     thicknessIns=0.045,
     lambdaI=0.024,
-    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18))
-                       annotation (Placement(transformation(
+    R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18),
+    d_ext=0.0889)      annotation (Placement(transformation(
         extent={{10,10},{-10,-10}},
         rotation=90,
         origin={-46,-10})));
@@ -119,7 +121,8 @@ extends Modelica.Icons.Example;
     thicknessIns=0.045,
     lambdaI=0.024,
     R=1/0.208 + 1/(2*2.4*Modelica.Constants.pi)*log(1/0.18),
-    length=20)
+    length=20,
+    d_ext=0.0889)
     annotation (Placement(transformation(extent={{-10,10},{10,-10}},
         rotation=90,
         origin={80,-10})));
