@@ -22,8 +22,6 @@ model PDETime_massFlowMod "Delay time for given normalized velocity"
   Boolean NonZeroPeriod "true if the flow velocity is >epsilon or <-epsilon";
   Boolean track_a_evaluate "used to reinit trackEnd ";
   Boolean track_b_evaluate "used to reinit trackEnd ";
-  Boolean v_a "fluid is flowing from a to b";
-  Boolean v_b "flud is flowing from b to a";
   Boolean trackEnd_NotNeeded "check if this value is needed";
   Modelica.SIunits.Time trackBegin "start time of a zero mass flow rate period";
   Modelica.SIunits.Time trackEnd
@@ -38,7 +36,7 @@ equation
   (time_out_a,time_out_b) = spatialDistribution(time,
                                        time,
                                        x/length,
-                                       v>=0,
+                                       noEvent(v>=0),
                                        {0.0, 1.0},
                                        {0.0, 0.0});
 
@@ -48,19 +46,8 @@ equation
     tau = tau_a_lim;
   end if;
 
-  if v >= epsilon then
-    v_a = true;
-  else
-    v_a = false;
-  end if;
-  if v <= -epsilon then
-    v_b = true;
-  else
-    v_b = false;
-  end if;
-
-  if abs(v) >= epsilon then
-    zeroPeriod = false;
+  if (abs(v) >= epsilon) then
+    zeroPeriod    = false;
     NonZeroPeriod = true;
     track = 0;
   else
