@@ -13,24 +13,24 @@ model CoolingPhase
     AdditionalFluidPorts=false,
     HX_2=false,
     HX_1=false,
-    V=3,
     alpha_out=10,
     thickness_ins=0.02,
     thickness_wall=0.01,
-    height=2.05,
-    T_start(displayUnit="degC") = 333.15)
+    T_start(displayUnit="degC") = 333.15,
+    height=1,
+    V=3)
     annotation (Placement(transformation(extent={{-60,18},{-20,58}})));
   Stratified storage_2(
     redeclare package Medium = Medium,
     m_flow_nominal=1,
     d=0.04,
-    h_port_a=0,
-    h_port_b=0,
     VTan=storage_1.nEle,
     hTan=storage_1.height,
     dIns=storage_1.thickness_ins,
     kIns=storage_1.lambda_ins,
     nSeg=storage_1.nEle,
+    h_port_a=0.2,
+    h_port_b=0.2,
     T_start=333.15)
     annotation (Placement(transformation(extent={{-60,-60},{-40,-40}})));
   Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature(T=293.15)
