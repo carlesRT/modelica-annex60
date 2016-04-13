@@ -110,5 +110,4 @@ equation
       Medium.temperature(Medium.setState_phX(port_a.p, hMix, wInj*inStream(ports_b.Xi_outflow)/wInjTot));
   annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}})));
-
 end JetInflow;
