@@ -1,6 +1,6 @@
 within Annex60.Fluid.Storage;
 model Stratified "Model of a stratified tank for thermal energy storage"
-  extends Buildings.Fluid.Interfaces.PartialTwoPortInterface;
+  extends Annex60.Fluid.Interfaces.PartialTwoPortInterface;
 
   replaceable package Medium =
       Modelica.Media.Interfaces.PartialSimpleMedium;
@@ -68,7 +68,7 @@ model Stratified "Model of a stratified tank for thermal energy storage"
     annotation (Placement(transformation(extent={{14,-70},{26,-58}})));
 
   // Models
-  Buildings.Fluid.MixingVolumes.MixingVolume[nSeg] vol(
+  Annex60.Fluid.MixingVolumes.MixingVolume[nSeg] vol(
     redeclare each package Medium = Medium,
     each energyDynamics=energyDynamics,
     each massDynamics=massDynamics,
@@ -101,14 +101,14 @@ protected
   parameter Modelica.SIunits.ThermalConductance conTopSeg = ATan*kIns/dIns
     "Thermal conductance from center of top (or bottom) volume through tank insulation at top (or bottom)";
 
-  Buildings.Fluid.Sensors.EnthalpyFlowRate H_a_flow(
+  Annex60.Fluid.Sensors.EnthalpyFlowRate H_a_flow(
     redeclare package Medium = Medium,
     final m_flow_nominal=m_flow_nominal,
     final tau=0,
     final allowFlowReversal=allowFlowReversal,
     final m_flow_small=m_flow_small) "Enthalpy flow rate at port a"
     annotation (Placement(transformation(extent={{-70,-90},{-50,-70}})));
-  Buildings.Fluid.Sensors.EnthalpyFlowRate[nSeg - 1] H_vol_flow(
+  Annex60.Fluid.Sensors.EnthalpyFlowRate[nSeg - 1] H_vol_flow(
     redeclare package Medium = Medium,
     each final m_flow_nominal=m_flow_nominal,
     each final tau=0,
@@ -116,7 +116,7 @@ protected
     each final m_flow_small=m_flow_small)
     "Enthalpy flow rate between the volumes"
     annotation (Placement(transformation(extent={{-20,-50},{0,-30}})));
-  Buildings.Fluid.Sensors.EnthalpyFlowRate H_b_flow(
+  Annex60.Fluid.Sensors.EnthalpyFlowRate H_b_flow(
     redeclare package Medium = Medium,
     final m_flow_nominal=m_flow_nominal,
     final tau=0,
@@ -256,14 +256,14 @@ This is a model of a stratified storage tank.
 </p>
 <p>
 See the
-<a href=\"modelica://Buildings.Fluid.Storage.UsersGuide\">
-Buildings.Fluid.Storage.UsersGuide</a>
+<a href=\"modelica://Annex60.Fluid.Storage.UsersGuide\">
+Annex60.Fluid.Storage.UsersGuide</a>
 for more information.
 </p>
 <p>
 For a model with enhanced stratification, use
-<a href=\"modelica://Buildings.Fluid.Storage.StratifiedEnhanced\">
-Buildings.Fluid.Storage.StratifiedEnhanced</a>.
+<a href=\"modelica://Annex60.Fluid.Storage.StratifiedEnhanced\">
+Annex60.Fluid.Storage.StratifiedEnhanced</a>.
 </p>
 </html>", revisions="<html>
 <ul>
