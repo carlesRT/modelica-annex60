@@ -26,9 +26,12 @@ parameter Modelica.SIunits.ThermalDiffusivity alpha = k/rho_start/cp_start
     "Fluid thermal diffusivity evaluated at T_ref";
 
 public
-parameter Real Ra = 7.132*10^11 "Rayleigh number";
-parameter Real Ra_check = Modelica.Constants.g_n*Beta_start/eta_start/alpha*(T_start-293.15)*height^(3)
-    "Rayleigh number" annotation(Dialog(enable = false));
+    parameter Boolean use_Ra_exp = false
+    "Set to true to define explicitely a value for the Rayleigh number";
+    parameter Real Ra_exp = 7.132*10^11 "Explicit value of the Rayleigh number"
+                                                                                annotation(Dialog(enable = use_Ra_exp));
+    final parameter Real Ra = if use_Ra_exp then Ra_exp else Modelica.Constants.g_n*Beta_start/eta_start/alpha*(T_start-293.15)*height^(3)
+    "Rayleigh number";
 
 //
   parameter Modelica.SIunits.Volume V = 0.3 "Storage tank volume";
@@ -41,12 +44,15 @@ parameter Real Ra_check = Modelica.Constants.g_n*Beta_start/eta_start/alpha*(T_s
   parameter Modelica.SIunits.ThermalConductivity lam_ins = 0.025
     "Thermal conductivity insulation";
   parameter Modelica.SIunits.ThermalConductivity lam_w = 16
-    "Thermal conductivity insulation";
+    "Thermal conductivity wall material";
   parameter Modelica.SIunits.CoefficientOfHeatTransfer h_ext = 2
     "External heat transfer coefficient";
-//
-  parameter Real U = 11.6 "Non-dimensional overall heat transfer coefficient ";
-  Real U_check = U_overall*height/k
+    //
+  parameter Boolean use_U_exp = false
+    "set to true to define explicitely a value for the Non-dimensional overall HTC";
+  parameter Real U_exp = 11.6
+    "Explicit value of the non-dimensional overall heat transfer coefficient "                           annotation(Dialog(enable = use_U_exp));
+  Real U = if use_U_exp then U_exp else U_H*height/k
     "Check non-dimensional overall heat transfer coefficient ";
 
   parameter Modelica.SIunits.Temperature T_ref = (T_start + 273.15+20)/2
@@ -54,10 +60,10 @@ parameter Real Ra_check = Modelica.Constants.g_n*Beta_start/eta_start/alpha*(T_s
 //
   Modelica.SIunits.Velocity v_ref = alpha / height "Reference velocity";
 
-  Modelica.SIunits.CoefficientOfHeatTransfer U_overall_2 = ((3/1000)/lam_w + (th_ins/lam_ins) + 1/(h_ext))^(-1)
-    "Overall heat transfer coefficient (eq 5.8/5.9)";
-  Modelica.SIunits.CoefficientOfHeatTransfer U_overall = ((0.5*d/lam_w)*log(r_t/(0.5*d)) + (0.5*d/lam_ins)*log(r_ins/(r_t)) + (0.5*d/r_ins)*1/(h_ext))^(-1)
-    "Overall heat transfer coefficient (eq 5.7)";
+  Modelica.SIunits.CoefficientOfHeatTransfer U_B = ((3/1000)/lam_w + (th_ins/lam_ins) + 1/(h_ext))^(-1)
+    "Overall heat transfer coefficient for bottom and top of the tank (eq 5.8/5.9)";
+  Modelica.SIunits.CoefficientOfHeatTransfer U_H = ((0.5*d/lam_w)*log(r_t/(0.5*d)) + (0.5*d/lam_ins)*log(r_ins/(r_t)) + (0.5*d/r_ins)*1/(h_ext))^(-1)
+    "Overall heat transfer coefficient fot tank wall (eq 5.7)";
 
 protected
 parameter Modelica.SIunits.Radius r_t = 0.5*d+3/1000;
@@ -118,7 +124,8 @@ public
   Modelica.SIunits.Heat Qloss_II "Heat losses trough II wall";
   Modelica.SIunits.Heat Qloss_III "Heat losses trough III wall";
   Modelica.SIunits.Heat Qloss_wall "Heat losses Vertical Wall";
-//
+  Modelica.SIunits.Heat Qloss "Total heat losses";
+  //
   Real t_dim = time * v_ref / height "Non-dimensional time";
 //
   Real meanT_I =    Modelica.Math.exp(-8.008*t_dim*(Ra^(-0.00863))*(U^(0.9997))*(Ratio_HD^(0.8064)))
@@ -133,23 +140,36 @@ public
   Real x_fig_516_III = t_dim*(Ra^(-0.00591))*(U^(0.9387))*(Ratio_HD^(0.8137));
 
 equation
-  der(Qloss_B)   = U_overall*h_B/(U_overall+h_B)*(T1-T_env)*S_B;
-  der(Qloss_T)   = U_overall*h_T/(U_overall+h_T)*(T3-T_env)*S_T;
-  der(Qloss_I)   = U_overall*h_I/(U_overall+h_I)*(T1-T_env)*S_I;
-  der(Qloss_II)  = U_overall*h_II/(U_overall+h_II)*(T2-T_env)*S_II;
-  der(Qloss_III) = U_overall*h_III/(U_overall+h_III)*(T3-T_env)*S_III;
-  der(Qloss_wall) = der(Qloss_I) + der(Qloss_II) + der(Qloss_III);
+  // Check validity of some parameters:
+  assert(V <= 0.4 and V >= 0.1, "Volume out of validated range");
+  assert(Ratio_HD <= 3.45 and Ratio_HD >= 1, "Ratio height-diameter out of validated range");
+  assert(T_start <= 273.15+70 and T_start >= 273.15+40, "Initial temperature out of validated range");
 
+  //
+
+  der(Qloss_B)   = U_H*h_B/(U_H+h_B)*(T1-T_env)*S_B;
+  der(Qloss_T)   = U_H*h_T/(U_H+h_T)*(T3-T_env)*S_T;
+  der(Qloss_I)   = U_H*h_I/(U_H+h_I)*(T1-T_env)*S_I;
+  der(Qloss_II)  = U_H*h_II/(U_H+h_II)*(T2-T_env)*S_II;
+  der(Qloss_III) = U_H*h_III/(U_H+h_III)*(T3-T_env)*S_III;
+  der(Qloss_wall) = der(Qloss_I) + der(Qloss_II) + der(Qloss_III);
+  der(Qloss) = der(Qloss_wall) + der(Qloss_B) + der(Qloss_T);
   annotation (Documentation(info="<html>
 <p>
 Model that characterise the transient behaviour of the fluid inside a cylindrical storage tank during a cooling phase (nor chage neither uncharge phase).</p>
 <p>A storage tank model was studied by means of detailed computational fluid dynamics simulations. The results were used to correlate the Nusselt number and the transient mean fluid temperature.</p>
 
+<h4>Global model</h4>
+<p>
+The volume of the water storage tank is divided in three zones: bottom, middle and top, thus the storage tank is described by three temperatures.</p>
+<p>The global model includes Nusselt number correlations: The three temperatures are used to calculate five different Nusselt numbers (Bottom, Wall bottom volume, Wall mid volume, wall top volume and top) used to calculate the heat losses of the tank. </p>
+
+
 <h4>Experiment</h4>
 <p>The performed study was focus on the solar storage tanks used in domestic systems. Thus typical values for tank size, aspect ratio, insualtion, etc where used. </p>
 <ul> 
-<li>Volumes between 0.1 and 0.4 m^3 </li>
-<li>Aspect ratiod height/diameter between 1 and 3.5 </li> 
+<li>Volumes between 0.1 and 0.4 m3 </li>
+<li>Aspect ratiod height/diameter between 1 and 3.45 </li> 
 <li>Thank made of stainless stell with a wall thickness = 3 mm</li>
 <li>Insulation thickness between 0 and 0.04 mm </li> 
 <li>Heat transfer coefficient between external tank wall and the ambient equal to 2 and 10 W/m2K </li>
