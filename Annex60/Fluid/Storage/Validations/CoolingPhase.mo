@@ -89,6 +89,16 @@ model CoolingPhase
   Modelica.Blocks.Sources.RealExpression storage_1_U_H(y=storage_1.UA_wall/(
         Modelica.Constants.pi*storage_1.diameter_ext*storage_1.height))
     annotation (Placement(transformation(extent={{40,90},{60,100}})));
+  Modelica.Blocks.Sources.RealExpression storage_1_U_B(y=storage_1.UA_top/
+        storage_1.ASec)
+    annotation (Placement(transformation(extent={{40,80},{60,90}})));
+  Modelica.Blocks.Sources.RealExpression storage_2_U_H(y=storage_2.conWal[1].G*
+        (storage_2.hTan/storage_2.hSeg)/(Modelica.Constants.pi*(storage_2.rTan
+         + 2*storage_2.dIns)*storage_2.hTan))
+    annotation (Placement(transformation(extent={{40,-90},{60,-80}})));
+  Modelica.Blocks.Sources.RealExpression storage_2_U_B(y=storage_2.conTopSeg/
+        storage_2.ATan)
+    annotation (Placement(transformation(extent={{40,-100},{60,-90}})));
 equation
 
   connect(BC_Storage_1.port, storage_1.heatPort) annotation (Line(
@@ -121,7 +131,8 @@ equation
       points={{-54,-86.4},{-48,-86.4},{-48,-50},{-40,-50}},
       color={191,0,0},
       smooth=Smooth.None));
-  annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
+  annotation ( __Dymola_Commands(file="modelica://Annex60/Resources/Scripts/Dymola/Fluid/Storage/Validations/CoolingPhase.mos"
+        "Simulate and plot"), Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}}),                                                                     graphics),
     experiment(StopTime=18000, Tolerance=1e-005),
     __Dymola_experimentSetupOutput);
