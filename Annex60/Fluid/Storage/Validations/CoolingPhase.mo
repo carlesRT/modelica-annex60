@@ -99,6 +99,21 @@ model CoolingPhase
   Modelica.Blocks.Sources.RealExpression storage_2_U_B(y=storage_2.conTopSeg/
         storage_2.ATan)
     annotation (Placement(transformation(extent={{40,-100},{60,-90}})));
+  Modelica.Blocks.Sources.RealExpression globalModel_U_H3(y=((1/globalModel.U_H)
+         + 1/(globalModel.h_III))^(-1))
+    annotation (Placement(transformation(extent={{20,0},{40,10}})));
+  Modelica.Blocks.Sources.RealExpression globalModel_U_B(y=((1/globalModel.U_B)
+         + 1/(globalModel.h_B))^(-1))
+    annotation (Placement(transformation(extent={{-40,-10},{-20,0}})));
+  Modelica.Blocks.Sources.RealExpression globalModel_U_T(y=((1/globalModel.U_B)
+         + 1/(globalModel.h_T))^(-1))
+    annotation (Placement(transformation(extent={{-40,-20},{-20,-10}})));
+  Modelica.Blocks.Sources.RealExpression globalModel_U_H1(y=((1/globalModel.U_H)
+         + 1/(globalModel.h_I))^(-1))
+    annotation (Placement(transformation(extent={{-40,0},{-20,10}})));
+  Modelica.Blocks.Sources.RealExpression globalModel_U_H2(y=((1/globalModel.U_H)
+         + 1/(globalModel.h_II))^(-1))
+    annotation (Placement(transformation(extent={{-10,0},{10,10}})));
 equation
 
   connect(BC_Storage_1.port, storage_1.heatPort) annotation (Line(

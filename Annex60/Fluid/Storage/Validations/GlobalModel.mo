@@ -60,9 +60,9 @@ public
 //
   Modelica.SIunits.Velocity v_ref = alpha / height "Reference velocity";
 
-  Modelica.SIunits.CoefficientOfHeatTransfer U_B = ((3/1000)/lam_w + (th_ins/lam_ins) + 1/(h_ext))^(-1)
+  parameter Modelica.SIunits.CoefficientOfHeatTransfer U_B = ((3/1000)/lam_w + (th_ins/lam_ins) + 1/(h_ext))^(-1)
     "Overall heat transfer coefficient for bottom and top of the tank (eq 5.8/5.9)";
-  Modelica.SIunits.CoefficientOfHeatTransfer U_H = ((0.5*d/lam_w)*log(r_t/(0.5*d)) + (0.5*d/lam_ins)*log(r_ins/(r_t)) + (0.5*d/r_ins)*1/(h_ext))^(-1)
+  parameter Modelica.SIunits.CoefficientOfHeatTransfer U_H = ((0.5*d/lam_w)*log(r_t/(0.5*d)) + (0.5*d/lam_ins)*log(r_ins/(r_t)) + (0.5*d/r_ins)*1/(h_ext))^(-1)
     "Overall heat transfer coefficient fot tank wall (eq 5.7)";
 
 protected
@@ -100,15 +100,15 @@ public
   Real Nu_III =   0.1356*(Ra^(0.269))*(U^(0.2041))*(Ratio_HD^(-0.0127))*Modelica.Math.exp((-4.09*10^(-4))*t_dim*(Ra^(0.294))*(U^(0.906))*(Ratio_HD^(0.1827)))
     "Nusselt number at temperature level III (eq 5.56)";
 //
-  Modelica.SIunits.CoefficientOfHeatTransfer h_B =   Nu_B*k/height
+  Modelica.SIunits.CoefficientOfHeatTransfer h_B =   max(Nu_B*k/height,0.000000000000001)
     "Heat transfer coefficient between Bottom and fluid (eq 5.63)";
-  Modelica.SIunits.CoefficientOfHeatTransfer h_T =   Nu_T*k/height
+  Modelica.SIunits.CoefficientOfHeatTransfer h_T =   max(Nu_T*k/height,0.000000000000001)
     "Heat transfer coefficient between Top wall and fluid (eq 5.63)";
-  Modelica.SIunits.CoefficientOfHeatTransfer h_I =   Nu_I*k/height
+  Modelica.SIunits.CoefficientOfHeatTransfer h_I =   max(Nu_I*k/height,0.000000000000001)
     "Heat transfer coefficient between Wall I and fluid (eq 5.63)";
-  Modelica.SIunits.CoefficientOfHeatTransfer h_II =  Nu_II*k/height
+  Modelica.SIunits.CoefficientOfHeatTransfer h_II =  max(Nu_II*k/height,0.000000000000001)
     "Heat transfer coefficient between Wall II and fluid (eq 5.63)";
-  Modelica.SIunits.CoefficientOfHeatTransfer h_III = Nu_III*k/height
+  Modelica.SIunits.CoefficientOfHeatTransfer h_III = max(Nu_III*k/height,0.000000000000001)
     "Heat transfer coefficient between Wall III and fluid (eq 5.63)";
 //
   Modelica.SIunits.Area S_T =     Modelica.Constants.pi*(d/2)^2 "Area top wall";

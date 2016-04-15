@@ -47,7 +47,7 @@ createPlot(
 
  createPlot(
  id = 2,
- position = {520, 0, 500, 1000},
+ position = {520, 0, 700, 1000},
  y = {"globalModel.der(Qloss)","BC_Storage_1.port.Q_flow","BC_Storage_2.port.Q_flow"},
  range = {0, 500, 0.0, 1000.0},
  autoscale = true,
@@ -62,8 +62,8 @@ createPlot(
  bottomTitleType = 1);
  createPlot(
  id = 2,
- position = {520, 0, 500, 1000},
- y = {"globalModel.U_B","storage_1_U_B.y","storage_2_U_B.y"},
+ position = {520, 0, 700, 1000},
+ y = {"globalModel.U_B","storage_1_U_B.y","storage_2_U_B.y","globalModel_U_B.y","globalModel_U_T.y"},
  range = {0, 500, 0.0, 1000.0},
  autoscale = true,
  autoerase = true,
@@ -77,8 +77,8 @@ createPlot(
  bottomTitleType = 1);
   createPlot(
  id = 2,
- position = {520, 0, 500, 1000},
- y = {"globalModel.U_H","storage_1_U_H.y","storage_2_U_H.y"},
+ position = {520, 0, 700, 1000},
+ y = {"globalModel.U_H","storage_1_U_H.y","storage_2_U_H.y","globalModel_U_H1.y","globalModel_U_H2.y","globalModel_U_H3.y"},
  range = {0, 500, 0.0, 1000.0},
  autoscale = true,
  autoerase = true,
