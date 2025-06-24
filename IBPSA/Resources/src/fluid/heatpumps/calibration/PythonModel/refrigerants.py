@@ -205,6 +205,8 @@ class R410A(object):
     """
 
     def __init__(self):
+        self.ref_name = 'R410A'
+        self.modelicaModelPath = 'IBPSA.Media.Refrigerants.R410A'
         self.TCri = 345.25          # Critical temperature (K)
         self.pCri = 4926.1e3        # Critical pressure (Pa)
         self.vCri = 0.00205         # Critical volume (m3/kg)
