@@ -62,7 +62,7 @@ equation
       1e-6*V_flow_nominal/vSuc);
 
     // Theoretical power of the compressor
-    k = ref.isentropicExponentVap_Tv(TSuc, vSuc);
+    k = ref.isentropicExponent(ref.setState_dT(1/vSuc, TSuc));
     // If the external pressure ratio does not match the built-in pressure ratio
     PThe = v_norm * k/(k - 1.0) * pSuc * V_flow_nominal
       * (((k - 1.0)/k) * PR/volRat + 1.0/k * PRInt^((k - 1.0)/k) - 1.0);
