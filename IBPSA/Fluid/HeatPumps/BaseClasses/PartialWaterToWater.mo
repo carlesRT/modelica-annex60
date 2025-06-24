@@ -47,7 +47,7 @@ partial model PartialWaterToWater
   parameter Boolean enable_temperature_protection = true
     "Enable temperature protection"
     annotation(Evaluate=true, Dialog(group="Temperature protection"));
-  parameter Modelica.Units.SI.Temperature TConMax=ref.TCri - 5
+  parameter Modelica.Units.SI.Temperature TConMax=ref.fluidConstants[1].criticalTemperature - 5
     "Upper bound for condenser temperature" annotation (Dialog(enable=
           enable_temperature_protection, group="Temperature protection"));
   parameter Modelica.Units.SI.Temperature TEvaMin=275.15
