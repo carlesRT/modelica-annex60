@@ -16,6 +16,7 @@ package R410A "Refrigerant R410A"
      each triplePointTemperature = 200,
      each meltingPoint = 118.15,
      each acentricFactor = 0.296,
+     each dipoleMoment = 1.99,
      each triplePointPressure = 29160) "Thermodynamic constants for R410a";
 
   record SaturationProperties
