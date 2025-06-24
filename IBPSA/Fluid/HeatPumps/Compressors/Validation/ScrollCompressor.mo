@@ -14,13 +14,15 @@ model ScrollCompressor
     "Condenser heat flow rate sensor"
     annotation (Placement(transformation(extent={{28,-10},{48,10}})));
   IBPSA.Fluid.HeatPumps.Compressors.ScrollCompressor com(
-    redeclare package ref = IBPSA.Media.Refrigerants.R410A,
     V_flow_nominal=0.003,
     leaCoe=0.005,
     etaEle=0.85,
     PLos=500,
     dTSup=3,
-    volRat=2.1) "Scroll compressor"
+    volRat=2.1,
+    redeclare package ref =
+        AixLib.Media.Refrigerants.R410A_HEoS.R410a_IIR_P1_48_T233_473_Horner)
+                "Scroll compressor"
     annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
   Modelica.Blocks.Sources.Constant on(k=1) "Compressor control signal"
     annotation (Placement(transformation(extent={{-16,28},{4,48}})));

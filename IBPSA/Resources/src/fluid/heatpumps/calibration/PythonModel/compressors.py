@@ -436,8 +436,8 @@ class ScrollCompressor(object):
 
 #        bounds = [(1., None), (0., None), (0., 1.),
 #                  (0., 1.), (0., None), (0., None)]
-        bounds = [(1.5, 3.5), (0., None), (1.0e-4, 1.),
-                  (0., 1.), (0., 0.25*P_nominal), (0., 10.)]
+        bounds = [(1.5, 3.5), (0., 3.*v_flow), (1.0e-4, 1.),
+                  (0., 1.), (0., 0.25*P_nominal), (0.01, 10.)]
         return [volRat, v_flow, leaCoe, etaEle, PLos, dTSup], bounds
 
     def modelicaModelPath(self):

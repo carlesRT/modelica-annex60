@@ -66,7 +66,7 @@ def main():
     # Evaporator model
     eva = hp.heatexchangers.EvaporatorCondenser([UAEva])
     # Refrigerant model
-    ref = hp.refrigerants.R410A()
+    ref = hp.refrigerants.CoolPropRefrigerant('R32', 'HelmholtzMedia.HelmholtzFluids.R32')
     # Fluid model on condenser side
     fluCon = hp.fluids.ConstantPropertyWater()
     # Fluid model on evaporator side

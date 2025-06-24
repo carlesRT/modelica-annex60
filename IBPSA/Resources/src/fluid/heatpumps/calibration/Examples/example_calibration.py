@@ -72,7 +72,7 @@ def main():
     # Evaporator model
     eva = hp.heatexchangers.EvaporatorCondenser([0.])
     # Refrigerant model
-    ref = hp.refrigerants.R410A()
+    ref = hp.refrigerants.CoolPropRefrigerant('R32', 'HelmholtzMedia.HelmholtzFluids.R32')
     # Fluid model on condenser side
     fluCon = hp.fluids.ConstantPropertyWater()
     # Fluid model on evaporator side
@@ -88,25 +88,26 @@ def main():
 
     # Write the results into a record for use in Modelica
     write_record_scroll(author, manufacturer, model, CoolingMode,
-                        'R410A', Q_nominal, COP_nominal,
+                        'R32', Q_nominal, COP_nominal,
                         optPar)
 
-    # -------------------------------------------------------------------------
-    # Calculate heat pump performance for full dataset in Dymola using the
-    # calibrated parameters.
-    # -------------------------------------------------------------------------
-    dymRes = hp.calibrate.simulate_in_dymola(heaPum, data, tableName,
-                                             tableFileName)
-    SSE = hp.calibrate.compare_data_sets(dymRes, data, plot=True,
-                                         fname=data.name + '_dymola')
-    print('----------------------------------------------------------------\n')
-    print('Sum of square errors (dymola) : ' + str(SSE) + ' \n')
-    print('----------------------------------------------------------------\n')
+    # # -------------------------------------------------------------------------
+    # # Calculate heat pump performance for full dataset in Dymola using the
+    # # calibrated parameters.
+    # # -------------------------------------------------------------------------
+    # dymRes = hp.calibrate.simulate_in_dymola(heaPum, data, tableName,
+    #                                          tableFileName)
+    # SSE = hp.calibrate.compare_data_sets(dymRes, data, plot=True,
+    #                                      fname=data.name + '_dymola')
+    # print('----------------------------------------------------------------\n')
+    # print('Sum of square errors (dymola) : ' + str(SSE) + ' \n')
+    # print('----------------------------------------------------------------\n')
 
-    # Compare the results of the Python code with the results from Dymola.
-    SSE = hp.calibrate.compare_data_sets(dymRes, optRes, plot=True,
-                                         fname='modelVerification')
-    return optRes, dymRes
+    # # Compare the results of the Python code with the results from Dymola.
+    # SSE = hp.calibrate.compare_data_sets(dymRes, optRes, plot=True,
+    #                                      fname='modelVerification')
+    # return optRes, dymRes
+    return optRes
 
 
 def write_record_scroll(author, manufacturer, model, CoolingMode,
