@@ -1,3 +1,13 @@
+fluidConstants
+ThermodynamicState
+SaturationProperties
+setSat_T
+saturationPressure
+dewEnthalpy
+bubbleEnthalpy
+density_pT
+isentropicExponent
+setState_dT
 dPressureVap_dSpecificVolume_Tv
 dPressureVap_dTemperature_Tv
 dSpecificVolumeVap_pT
