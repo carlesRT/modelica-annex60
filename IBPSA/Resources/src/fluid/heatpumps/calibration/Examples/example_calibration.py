@@ -88,7 +88,7 @@ def main():
 
     # Write the results into a record for use in Modelica
     write_record_scroll(author, manufacturer, model, CoolingMode,
-                        'R32', Q_nominal, COP_nominal,
+                        ref.ref_name, Q_nominal, COP_nominal,
                         optPar)
 
     # # -------------------------------------------------------------------------
