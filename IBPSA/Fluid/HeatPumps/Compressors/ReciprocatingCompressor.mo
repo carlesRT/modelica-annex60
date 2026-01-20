@@ -66,7 +66,7 @@ equation
     m_flow = 0;
     PThe = 0;
     P = 0;
-    TSuc = port_a.T;
+    TSuc = port_a.T + dTSup;
     port_a.Q_flow = 0;
     port_b.Q_flow = 0;
     COP = 1.0;
