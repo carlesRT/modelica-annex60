@@ -53,9 +53,12 @@ def main():
             data.add_data_point(EWT_Source, EWT_Load, flowSource,
                                 flowLoad, Capacity, HR, Power)
 
+    print("min EWT_Source: ", min(data.EWT_Source), "max EWT_Source: ", max(data.EWT_Source))
+    print("min EWT_Load: ", min(data.EWT_Load), "max EWT_Load: ", max(data.EWT_Load))
     # Data points used in calibration
     calData = data.calibration_data_16_points()
-
+    
+    
     # Initialize the heat pump model
     P_nominal = 17.5e3
     COP_nominal = 4.0
