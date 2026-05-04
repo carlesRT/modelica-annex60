@@ -75,7 +75,11 @@ def main():
     # Evaporator model
     eva = hp.heatexchangers.EvaporatorCondenser([0.])
     # Refrigerant model
-    ref = hp.refrigerants.CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+    map_libraries = {"IBPSA":r"S:/Carles/Repositories/Carles-IBPSA/IBPSA",
+                     "ThermofluidStream":r"S:/Carles/Repositories/DLR/ThermofluidStream",
+                     "IDEAS":r"S:/Carles/Repositories/IDEAS/IDEAS"}   
+    ref = hp.refrigerants.ModelicaPropRefrigerant('R1234yf_ph', 'ThermofluidStream.Media.XRGMedia.R1234yf_ph', map_libraries)
+    #ref = hp.refrigerants.CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp', map_libraries)
     #ref = hp.refrigerants.R410A()
     # Fluid model on condenser side
     fluCon = hp.fluids.ConstantPropertyWater()

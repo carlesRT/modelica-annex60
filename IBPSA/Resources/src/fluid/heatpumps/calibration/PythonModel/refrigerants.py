@@ -5,15 +5,15 @@ from dymola.dymola_interface import DymolaInterface
 import numpy as np
 import os
 import time as tm
-from fmpy import *
+#from fmpy import simulate_fmu
 
 class FMUPropRefrigerant(object):
     """ Class for the evaluation of properties of refrigerant from a Modelica library using FMU.
 
     
     """
-
-    def __init__(self, ref_name, modelicaModelPath):  
+    
+    def __init__(self, ref_name, modelicaModelPath):
         self.IBPSA_ref_package = "IBPSA.Media.Refrigerants"
         map_libraries = {"IBPSA":r"S:/Carles/Repositories/Carles-IBPSA/IBPSA",
                 "ThermofluidStream":r"S:/Carles/Repositories/DLR/ThermofluidStream"}        
@@ -30,7 +30,7 @@ class FMUPropRefrigerant(object):
         self.name = ref_name
         self.IBPSAMedium = self.IBPSA_ref_package + "." + ref_name
         self.LibraryMedium = modelicaModelPath
-        self.IBPSAMedium_cal = r'IBPSA.Media.Refrigerants.Calibration.'+ ref_name
+        self.IBPSAMedium_cal = r'IBPSA.Media.Refrigerants.'+ ref_name
         self.wd = r'S:/Carles/WDs/WD8'
         self.dymola.ExecuteCommand(f'cd("{self.wd}")')
         os.chdir(self.wd)
@@ -40,6 +40,7 @@ class FMUPropRefrigerant(object):
         self.fmu = f"{fmu}.fmu"
         print("self.fmu: ", self.fmu)
         print(os.getcwd())
+        
         result = simulate_fmu(self.fmu,start_values={'T_in': 300, 'v_in': 1, 'p_in': 100000},
                               start_time=0,
                               stop_time=0,
@@ -133,7 +134,7 @@ class FMUPropRefrigerant(object):
            '1989639.98'
 
         """ 
-        result = simulate_fmu(self.fmu,start_values={'T_in': Tliq, 'v_in':0.1, 'p_in': 100000},
+        result = simulate_fmu(self.fmu,start_values={'T_in': TLiq, 'v_in':0.1, 'p_in': 100000},
                               start_time=0,
                               stop_time=0,
                               output_interval=1)
@@ -258,39 +259,35 @@ class FMUPropRefrigerant(object):
 
 class ModelicaPropRefrigerant(object):
     """ Class for the evaluation of properties of refrigerant from a Modelica library.
-
     
     """
 
-    def __init__(self, ref_name, modelicaModelPath):
+    def __init__(self, ref_name, ModelicaModelPath, map_libraries):
         from scipy.interpolate import interp1d, RegularGridInterpolator, LinearNDInterpolator
-        self.IBPSA_ref_package = "IBPSA.Media.Refrigerants"
-        map_libraries = {"IBPSA":r"S:/Carles/Repositories/Carles-IBPSA/IBPSA",
-                         "ThermofluidStream":r"S:/Carles/Repositories/DLR/ThermofluidStream"}        
+        self.ref_name = ref_name
+        self.Medium = ModelicaModelPath
+        self.IBPSA_ref_package = "IBPSA.Media.Refrigerants"    
         self.dymola = DymolaInterface()
         self.dymola.ExecuteCommand(f'DymolaCommands.SimulatorAPI.openModel("{map_libraries["IBPSA"]}/package.mo")')
-        self.dymola.ExecuteCommand(f'DymolaCommands.SimulatorAPI.openModel("{map_libraries[modelicaModelPath.split(".")[0]]}/package.mo")')        
-        self.ref_name = ref_name
-        self.IBPSAMedium = modelicaModelPath
-        self.IBPSAMedium_cal = r'IBPSA.Media.Refrigerants.Calibration.'+ ref_name
-        self.dymola.ExecuteCommand(f'translateModel("{self.IBPSAMedium_cal}")')
+        self.dymola.ExecuteCommand(f'DymolaCommands.SimulatorAPI.openModel("{map_libraries[ModelicaModelPath.split(".")[0]]}/package.mo")')
+        self.dymola.ExecuteCommand(f'translateModel("{self.IBPSA_ref_package + "." + ref_name}")')            
         # Critical temperature (K)
-        self.TCri = self.dymola.ExecuteCommand("TCri")
+        self.TCri = self.dymola.ExecuteCommand("fluidConstants.criticalTemperature")[0]
         # Critical pressure (Pa)
-        self.pCri = self.dymola.ExecuteCommand("pCri")
+        self.pCri = self.dymola.ExecuteCommand("fluidConstants.criticalPressure")[0]
         # Critical volume (m3/kg)
-        tol = 1001
-        self.vCri = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.specificVolumeVap_pT({self.pCri}+{tol},{self.TCri})')
+        tol_p = 1001
+        self.vCri = 1/self.dymola.ExecuteCommand(f'{self.Medium}.density({self.Medium}.setState_pTX({self.pCri}+{tol_p},{self.TCri}))')
         # Minimum temperature for property evaluation (K)
-        self.T_min = self.dymola.ExecuteCommand("T_min")
-        #self.T_max = self.dymola.ExecuteCommand("T_max")
+        self.T_min = self.dymola.ExecuteCommand("fluidLimits.TMIN")[0]
+        # dymola.ExecuteCommand("fluidLimits.TMAX")
+        self.T_max = self.dymola.ExecuteCommand("fluidLimits.TMAX")[0]
 
         deltaT = 0.01
         T_range = np.round(np.arange(self.T_min,self.TCri + deltaT, deltaT),4)
         T_range_str = "{" + ",".join(map(str, T_range)) + "}"   
-        
         tic = tm.time()
-        get_SaturatedLiquidPressure_map = {"T":T_range, "y":self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.saturationPressure({T_range_str})')}    
+        get_SaturatedLiquidPressure_map = {"T":T_range, "y":self.dymola.ExecuteCommand(f'{self.Medium}.saturationPressure({T_range_str})')}    
         self._pLiqsat_interp = interp1d(
             get_SaturatedLiquidPressure_map["T"],
             get_SaturatedLiquidPressure_map["y"],
@@ -305,7 +302,7 @@ class ModelicaPropRefrigerant(object):
             bounds_error=True
         )
         
-        get_SaturatedLiquidEnthalpy_map = {"T":T_range, "y":self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.bubbleEnthalpy({self.IBPSAMedium}.setSat_T({T_range_str}))')}  
+        get_SaturatedLiquidEnthalpy_map = {"T":T_range, "y":self.dymola.ExecuteCommand(f'{self.Medium}.bubbleEnthalpy({self.Medium}.setSat_T({T_range_str}))')}  
         self._hLiqsat_interp = interp1d(
             get_SaturatedLiquidEnthalpy_map["T"],
             get_SaturatedLiquidEnthalpy_map["y"],
@@ -313,7 +310,7 @@ class ModelicaPropRefrigerant(object):
             bounds_error=True
         )
         
-        get_SaturatedVaporEnthalpy_map = {"T":T_range, "y":self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.dewEnthalpy({self.IBPSAMedium}.setSat_T({T_range_str}))')}
+        get_SaturatedVaporEnthalpy_map = {"T":T_range, "y":self.dymola.ExecuteCommand(f'{self.Medium}.dewEnthalpy({self.Medium}.setSat_T({T_range_str}))')}
         self._hVapsat_interp = interp1d(
             get_SaturatedVaporEnthalpy_map["T"],
             get_SaturatedVaporEnthalpy_map["y"],
@@ -329,7 +326,7 @@ class ModelicaPropRefrigerant(object):
         T_min_reduced = 273.15 - 30
         T_range_2D = np.round(np.arange(T_min_reduced, self.TCri + deltaT_reduced, deltaT_reduced),4)
         try: 
-            data_2D = np.load(modelicaModelPath+"_maps.npz")
+            data_2D = np.load(ModelicaModelPath+"_maps.npz")
             print("Ref 2D data is laoded.")
             get_SpecificIsobaricHeatCapacity_vT_2Dmap = data_2D["cp"]
             get_SpecificIsochoricHeatCapacity_vT_2Dmap = data_2D["cv"]
@@ -351,16 +348,16 @@ class ModelicaPropRefrigerant(object):
             for j, T_ in enumerate(T_range_2D):
                 if j % 50 == 0:
                     print(f"Progress: {j}/{len(T_range_2D)} (T={T_})")
-                cp_slice = np.array(self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.specificIsobaricHeatCapacityVap_Tv({T_},{v_slice_str})'))
+                cp_slice = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.specificIsobaricHeatCapacityVap_Tv({T_},{v_slice_str})'))
                 get_SpecificIsobaricHeatCapacity_vT_2Dmap[j,:] = cp_slice 
-                cv_slice = np.array(self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.specificIsochoricHeatCapacityVap_Tv({T_},{v_slice_str})'))
+                cv_slice = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.specificIsochoricHeatCapacityVap_Tv({T_},{v_slice_str})'))
                 get_SpecificIsochoricHeatCapacity_vT_2Dmap[j,:] = cv_slice
                 get_IsentropicExponent_vT_2Dmap[j,:] = cp_slice / cv_slice
-                get_VaporPressure_2Dmap[j,:] = np.array(self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.pressureVap_Tv({T_},{v_slice_str})'))
+                get_VaporPressure_2Dmap[j,:] = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.pressureVap_Tv({T_},{v_slice_str})'))
             
             print("Loop to generate 2D ref data has finished")
             np.savez_compressed(
-            modelicaModelPath+"_maps.npz",
+            ModelicaModelPath+"_maps.npz",
             cp=get_SpecificIsobaricHeatCapacity_vT_2Dmap,
             cv=get_SpecificIsochoricHeatCapacity_vT_2Dmap,
             kappa=get_IsentropicExponent_vT_2Dmap,
@@ -399,7 +396,7 @@ class ModelicaPropRefrigerant(object):
         
         tic = tm.time()
         try: 
-            data_v = np.load(modelicaModelPath+"_v_map.npz")
+            data_v = np.load(ModelicaModelPath+"_v_map.npz")
             T_all = data_v["T"]
             p_all = data_v["p"]
             v_all = data_v["v"]
@@ -419,7 +416,7 @@ class ModelicaPropRefrigerant(object):
                 for p_ in p_range:
                     try:
                         v_val = self.dymola.ExecuteCommand(
-                            f'{self.IBPSAMedium}.specificVolumeVap_pT({p_},{T_})'
+                            f'{self.Medium}.specificVolumeVap_pT({p_},{T_})'
                         )
                         valid_v.append(v_val)
                         valid_p.append(p_)
@@ -444,7 +441,7 @@ class ModelicaPropRefrigerant(object):
                     v_all.append(v_slices[j][k])
                     
             np.savez_compressed(
-            modelicaModelPath+"_v_map.npz",
+            ModelicaModelPath+"_v_map.npz",
             T = np.array(T_all),
             p = np.array(p_all),
             v = np.array(v_all)
@@ -477,7 +474,7 @@ class ModelicaPropRefrigerant(object):
         """
         k = self.kappa_interp((T,v))
         if np.isnan(k).any():
-            k = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.isentropicExponentVap_Tv({T},{v})')
+            k = self.dymola.ExecuteCommand(f'{self.Medium}.isentropicExponentVap_Tv({T},{v})')
         else:    
             k = float(k)
             #print("Call get_IsentropicExponent_vT ..", k)
@@ -499,7 +496,7 @@ class ModelicaPropRefrigerant(object):
         """  
         cp = self.cp_interp((T,v))
         if np.isnan(cp).any():
-            cp = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.specificIsobaricHeatCapacityVap_Tv({T},{v})')
+            cp = self.dymola.ExecuteCommand(f'{self.Medium}.specificIsobaricHeatCapacityVap_Tv({T},{v})')
         else:
             cp = float(cp)
         #print("Call get_SpecificIsobaricHeatCapacity_vT ..", cp)
@@ -521,7 +518,7 @@ class ModelicaPropRefrigerant(object):
         """ 
         cv = self.cv_interp((T,v))
         if np.isnan(cv).any():
-            cv = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.specificIsochoricHeatCapacityVap_Tv({T},{v})')
+            cv = self.dymola.ExecuteCommand(f'{self.Medium}.specificIsochoricHeatCapacityVap_Tv({T},{v})')
         else:
             cv = float(cv)
         return cv
@@ -541,7 +538,7 @@ class ModelicaPropRefrigerant(object):
         """ 
         pLiq= self._pLiqsat_interp(TLiq)
         if np.isnan(pLiq).any():
-            pLiq = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.saturationPressure({TLiq})')
+            pLiq = self.dymola.ExecuteCommand(f'{self.Medium}.saturationPressure({TLiq})')
         else:
             pLiq = float(pLiq)
         return pLiq
@@ -561,7 +558,7 @@ class ModelicaPropRefrigerant(object):
         """ 
         pVap = self._pVapsat_interp(TVap)
         if np.isnan(pVap).any():
-            pVap = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.saturationPressure({TVap})')
+            pVap = self.dymola.ExecuteCommand(f'{self.Medium}.saturationPressure({TVap})')
         else:
             pVap = float(pVap)
         return pVap
@@ -581,7 +578,7 @@ class ModelicaPropRefrigerant(object):
         """
         hLiq = self._hLiqsat_interp(TLiq)
         if np.isnan(hLiq).any():
-            hLiq = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.bubbleEnthalpy({self.IBPSAMedium}.setSat_T({TLiq}))')
+            hLiq = self.dymola.ExecuteCommand(f'{self.Medium}.bubbleEnthalpy({self.Medium}.setSat_T({TLiq}))')
         else:
             hLiq = float(hLiq)
         #print("Call get_SaturatedLiquidEnthalpy ..", hLiq)
@@ -607,7 +604,7 @@ class ModelicaPropRefrigerant(object):
 
         hVap = self._hVapsat_interp(TVap)
         if np.isnan(hVap).any(): 
-            hVap = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.dewEnthalpy({self.IBPSAMedium}.setSat_T({TVap}))')
+            hVap = self.dymola.ExecuteCommand(f'{self.Medium}.dewEnthalpy({self.Medium}.setSat_T({TVap}))')
         else:
             hVap = float(hVap)
         return hVap
@@ -631,7 +628,7 @@ class ModelicaPropRefrigerant(object):
         """
         pVap = self.pVap_interp((TVap,vVap))
         if np.isnan(pVap).any():
-            pVap = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.pressureVap_Tv({TVap},{vVap})')
+            pVap = self.dymola.ExecuteCommand(f'{self.Medium}.pressureVap_Tv({TVap},{vVap})')
             print(f"pVap outside of range, (TVap,vVap): ({TVap:.2f}, {vVap:.0f}) → fallback pVap = {pVap:.6f}")
         else:
             pVap = float(pVap)
@@ -656,7 +653,7 @@ class ModelicaPropRefrigerant(object):
 
         v_interp = self.interp_func((T, p))
         if v_interp is None or np.isnan(v_interp).any():   
-            v = self.dymola.ExecuteCommand(f'{self.IBPSAMedium}.specificVolumeVap_pT({p},{T})')
+            v = self.dymola.ExecuteCommand(f'{self.Medium}.specificVolumeVap_pT({p},{T})')
             print(f"v outside of range, (T,p): ({T:.2f}, {p:.0f}) → fallback v = {v:.6f}")
         else:
             v = float(v_interp)
