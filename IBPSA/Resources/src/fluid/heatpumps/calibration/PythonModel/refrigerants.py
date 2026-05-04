@@ -73,7 +73,7 @@ class ModelicaPropRefrigerant(object):
         tic = tm.time()
         deltaT_reduced = 0.1
         T_min_reduced = 273.15 - 30
-        T_range_2D = np.round(np.arange(T_min_reduced, self.TCri + deltaT_reduced, deltaT_reduced),4)
+        T_range_2D = np.round(np.arange(T_min_reduced, self.TCri+deltaT_reduced, deltaT_reduced),4)
         try: 
             data_2D = np.load(ModelicaModelPath+"_maps.npz")
             print("Ref 2D data is laoded.")
@@ -86,23 +86,27 @@ class ModelicaPropRefrigerant(object):
             intermediate_toc = tm.time()  - tic
             print("Load 2D files ", intermediate_toc, " s")
         except FileNotFoundError:
-            v_range = np.arange(0.0001, 1.5, 0.001)
-            v_slice_str = "{" + ",".join(map(str, v_range)) + "}"        
-            get_SpecificIsobaricHeatCapacity_vT_2Dmap = np.zeros((len(T_range_2D), len(v_range)))
-            get_SpecificIsochoricHeatCapacity_vT_2Dmap = np.zeros((len(T_range_2D), len(v_range)))
-            get_IsentropicExponent_vT_2Dmap = np.zeros((len(T_range_2D), len(v_range)))
-            get_VaporPressure_2Dmap = np.zeros((len(T_range_2D), len(v_range)))
+            v_range = np.arange(0.01, 1, 0.001)
+            d_range = 1/v_range
+            d_slice_str = "{" + ",".join(map(str, d_range)) + "}"
+            nT = len(T_range_2D)
+            nv = len(v_range)
+            
+            get_SpecificIsobaricHeatCapacity_vT_2Dmap = np.zeros((nT, nv))
+            get_SpecificIsochoricHeatCapacity_vT_2Dmap = np.zeros((nT, nv))
+            get_IsentropicExponent_vT_2Dmap = np.zeros((nT, nv))
+            get_VaporPressure_2Dmap = np.zeros((nT, nv))
             
             print("Start for loop to generate 2D ref data, length... ", len(T_range_2D))
             for j, T_ in enumerate(T_range_2D):
                 if j % 50 == 0:
                     print(f"Progress: {j}/{len(T_range_2D)} (T={T_})")
-                cp_slice = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.specificIsobaricHeatCapacityVap_Tv({T_},{v_slice_str})'))
+                cp_slice = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.specificHeatCapacityCp({self.Medium}.setState_dTX({d_slice_str},{T_}))'))
                 get_SpecificIsobaricHeatCapacity_vT_2Dmap[j,:] = cp_slice 
-                cv_slice = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.specificIsochoricHeatCapacityVap_Tv({T_},{v_slice_str})'))
+                cv_slice = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.specificHeatCapacityCv({self.Medium}.setState_dTX({d_slice_str},{T_}))'))
                 get_SpecificIsochoricHeatCapacity_vT_2Dmap[j,:] = cv_slice
                 get_IsentropicExponent_vT_2Dmap[j,:] = cp_slice / cv_slice
-                get_VaporPressure_2Dmap[j,:] = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.pressureVap_Tv({T_},{v_slice_str})'))
+                get_VaporPressure_2Dmap[j,:] = np.array(self.dymola.ExecuteCommand(f'{self.Medium}.pressure({self.Medium}.setState_dTX({d_slice_str},{T_}))'))
             
             print("Loop to generate 2D ref data has finished")
             np.savez_compressed(
@@ -223,7 +227,7 @@ class ModelicaPropRefrigerant(object):
         """
         k = self.kappa_interp((T,v))
         if np.isnan(k).any():
-            k = self.dymola.ExecuteCommand(f'{self.Medium}.isentropicExponentVap_Tv({T},{v})')
+            k = self.dymola.ExecuteCommand(f'{self.Medium}.isentropicExponent({self.Medium}.setState_dTX(1/{v},{T}))')
         else:    
             k = float(k)
             #print("Call get_IsentropicExponent_vT ..", k)
@@ -245,7 +249,7 @@ class ModelicaPropRefrigerant(object):
         """  
         cp = self.cp_interp((T,v))
         if np.isnan(cp).any():
-            cp = self.dymola.ExecuteCommand(f'{self.Medium}.specificIsobaricHeatCapacityVap_Tv({T},{v})')
+            cp = self.dymola.ExecuteCommand(f'{self.Medium}.specificHeatCapacityCp({self.Medium}.setState_dTX(1/{v},{T}))')
         else:
             cp = float(cp)
         #print("Call get_SpecificIsobaricHeatCapacity_vT ..", cp)
@@ -267,7 +271,7 @@ class ModelicaPropRefrigerant(object):
         """ 
         cv = self.cv_interp((T,v))
         if np.isnan(cv).any():
-            cv = self.dymola.ExecuteCommand(f'{self.Medium}.specificIsochoricHeatCapacityVap_Tv({T},{v})')
+            cv = self.dymola.ExecuteCommand(f'{self.Medium}.specificHeatCapacityCv({self.Medium}.setState_dTX(1/{v},{T}))')
         else:
             cv = float(cv)
         return cv
@@ -377,7 +381,7 @@ class ModelicaPropRefrigerant(object):
         """
         pVap = self.pVap_interp((TVap,vVap))
         if np.isnan(pVap).any():
-            pVap = self.dymola.ExecuteCommand(f'{self.Medium}.pressureVap_Tv({TVap},{vVap})')
+            pVap = self.dymola.ExecuteCommand(f'{self.Medium}.pressure({self.Medium}.setState_dTX(1/{vVap},{TVap}))')
             print(f"pVap outside of range, (TVap,vVap): ({TVap:.2f}, {vVap:.0f}) → fallback pVap = {pVap:.6f}")
         else:
             pVap = float(pVap)
@@ -402,7 +406,7 @@ class ModelicaPropRefrigerant(object):
 
         v_interp = self.interp_func((T, p))
         if v_interp is None or np.isnan(v_interp).any():   
-            v = self.dymola.ExecuteCommand(f'{self.Medium}.specificVolumeVap_pT({p},{T})')
+            v = self.dymola.ExecuteCommand(f'1/{self.Medium}.density({self.Medium}.setState_pTX({p},{T}))')
             print(f"v outside of range, (T,p): ({T:.2f}, {p:.0f}) → fallback v = {v:.6f}")
         else:
             v = float(v_interp)
