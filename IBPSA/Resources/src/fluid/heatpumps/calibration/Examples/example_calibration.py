@@ -11,6 +11,7 @@ heat pump parameters is generated.
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
+import time as tm
 import os
 import sys
 import datetime
@@ -91,9 +92,12 @@ def main():
                                               CoolingMode)
     
     # Lauch the calibration of the heat pump model.
+    opt_tic =  tm.time()
     print("Launch calibration ...")
     optPar, optRes, gueRes = hp.calibrate.calibrate_model(heaPum, calData,
                                                           data, plot=True)
+    opt_toc = tm.time() - opt_tic
+    print("Calibration finished. ", opt_toc, " s")
     
     # Write the results into a record for use in Modelica
     print("Write results into a record ...")
