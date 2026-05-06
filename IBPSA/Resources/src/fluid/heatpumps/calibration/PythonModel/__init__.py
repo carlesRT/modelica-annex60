@@ -6,3 +6,4 @@ from . import fluids
 from . import heatexchangers
 from . import heatpumps
 from . import refrigerants
+from . import ref_maps
