@@ -51,9 +51,10 @@ class ModelicaPropRefrigerantMap(object):
     
         tic = tm.time()
         deltaT_reduced = 0.1
-        T_min_reduced = 273.15 - 30
-        T_range_2D = np.round(np.arange(T_min_reduced, self.TCri, deltaT_reduced),4)
-        v_range = np.arange(0.01, 1, 0.001)
+        T_min_used = 273.15 - 1
+        T_max_used = 318.15 + 1  #self.TCri
+        T_range_2D = np.round(np.arange(T_min_used, T_max_used, deltaT_reduced),4)
+        v_range = np.arange(0.001, 0.5, 0.002)
         d_range = np.sort(1/v_range)
         d_slice_str = "{" + ",".join(f"{x:.8g}" for x in d_range) + "}"
         nT = len(T_range_2D)
