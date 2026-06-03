@@ -1,7 +1,179 @@
 from __future__ import division, print_function, absolute_import
 
+from CoolProp.CoolProp import PropsSI
 import numpy as np
 
+class CoolPropRefrigerant(object):
+    """ Class for the evaluation of properties of refrigerant from Coolprop.
+
+    The refrigerant name must coincide with Coolprop nomenclature.
+    """
+
+    def __init__(self, ref_name, modelicaModelPath):
+        self.ref_name = ref_name
+        self.modelicaModelPath = modelicaModelPath
+        # Critical temperature (K)
+        self.TCri = PropsSI('Tcrit',self.ref_name)
+        # Critical pressure (Pa)
+        self.pCri = PropsSI('Pcrit',self.ref_name)
+        # Critical volume (m3/kg)
+        self.vCri = 1./PropsSI('rhocrit',self.ref_name)
+        # Minimum temperature for property evaluation (K)
+        self.T_min = PropsSI('Tmin',self.ref_name)
+
+    def get_IsentropicExponent_vT(self, v, T):
+        """ Evaluate the isentropic exponent.
+
+        :param v: Specific volume of the refrigerant (m3/kg).
+        :param T: Temperature of the refrigerant (K).
+
+        :return: Isentropic exponent (-).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.4f' % ref.get_IsentropicExponent_vT(0.025, 289.64)
+           '1.3808'
+
+        """
+        cp = self.get_SpecificIsobaricHeatCapacity_vT(v, T)
+        cv = self.get_SpecificIsochoricHeatCapacity_vT(v, T)
+        k = cp / cv
+        return k
+
+    def get_SpecificIsobaricHeatCapacity_vT(self, v, T):
+        """ Evaluate the specific isobaric heat capacity.
+
+        :param v: Specific volume of the refrigerant (m3/kg).
+        :param T: Temperature of the refrigerant (K).
+
+        :return: Specific isobaric heat capacity (J/kg-K).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.2f' % ref.get_SpecificIsobaricHeatCapacity_vT(0.025, 289.64)
+           '1145.22'
+
+        """
+        cp = PropsSI('Cpmass', 'D', 1./v, 'T', T, self.ref_name)
+        return cp
+
+    def get_SpecificIsochoricHeatCapacity_vT(self, v, T):
+        """ Evaluate the specific isochoric heat capacity.
+
+        :param v: Specific volume of the refrigerant (m3/kg).
+        :param T: Temperature of the refrigerant (K).
+
+        :return: Specific isochoric heat capacity (J/kg-K).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.2f' % ref.get_SpecificIsochoricHeatCapacity_vT(0.025, 289.64)
+           '829.39'
+
+        """
+        cv = PropsSI('Cvmass', 'D', 1./v, 'T', T, self.ref_name)
+        return cv
+
+    def get_SaturatedLiquidPressure(self, TLiq):
+        """ Evaluate the pressure of saturated liquid refrigerant.
+
+        :param TLiq: Temperature of the saturated liquid refrigerant (K).
+
+        :return: Pressure of saturated liquid refrigerant (Pa).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.2f' % ref.get_SaturatedLiquidPressure(305.25)
+           '1993506.85'
+
+        """
+        pLiq = PropsSI('P', 'Q', 0, 'T', TLiq, self.ref_name)
+        return pLiq
+
+    def get_SaturatedVaporPressure(self, TVap):
+        """ Evaluate the pressure of saturated refrigerant vapor.
+
+        :param TLiq: Temperature of the saturated liquid refrigerant (K).
+
+        :return: Pressure of saturated refrigerant vapor (Pa).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.2f' % ref.get_SaturatedVaporPressure(283.15)
+           '1084818.45'
+
+        """
+        TVap  = min(TVap, self.TCri)
+        pVap = PropsSI('P', 'Q', 1, 'T', TVap, self.ref_name)
+        return pVap
+
+    def get_SaturatedLiquidEnthalpy(self, TLiq):
+        """ Evaluate the specific enthalpy of saturated liquid refrigerant.
+
+        :param TLiq: Temperature of the saturated liquid refrigerant (K).
+
+        :return: Specific enthalpy of saturated liquid refrigerant (J/kg).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.2f' % ref.get_SaturatedLiquidEnthalpy(305.25)
+           '252047.78'
+
+        """
+        TLiq  = min(TLiq, self.TCri)
+        hLiq = PropsSI('H', 'Q', 0, 'T', TLiq, self.ref_name)
+        return hLiq
+
+    def get_SaturatedVaporEnthalpy(self, TVap):
+        """ Evaluate the specific enthalpy of saturated liquid refrigerant.
+
+        :param TLiq: Temperature of the saturated liquid refrigerant (K).
+
+        :return: Specific enthalpy of saturated liquid refrigerant (J/kg).
+
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.2f' % ref.get_SaturatedVaporEnthalpy(283.15)
+           '424049.65'
+
+        """
+        hVap = PropsSI('H', 'Q', 1, 'T', TVap, self.ref_name)
+        return hVap
+
+    def get_VaporPressure(self, TVap, vVap):
+        """ Evaluate the pressure of refrigerant vapor.
+
+        :param TVap: Temperature of refrigerant vapor (K).
+        :param vVap: Specific volume of refrigerant vapor (m3/kg).
+
+        :return: Pressure of refrigerant vapor (Pa).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.2f' % ref.get_VaporPressure(289.64, 0.025)
+           '1087134.15'
+
+        """
+        pVap = PropsSI('P', 'D', 1./vVap, 'T', TVap, self.ref_name)
+        return pVap
+
+    def get_VaporSpecificVolume(self, p, T):
+        """ Evaluate the Specific of refrigerant vapor.
+
+        :param p: Pressure of refrigerant vapor (Pa).
+        :param T: Temperature of refrigerant vapor (K).
+
+        :return: Specific volume of refrigerant vapor (m3/kg).
+
+        Usage: Type
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+           >>> '%.8f' % ref.get_VaporSpecificVolume(1083546.3, 289.64)
+           '0.02510488'
+
+        """
+        v = 1./PropsSI('D', 'P', p, 'T', T, self.ref_name)
+        return v
 
 class R410A(object):
     """ Class for the evaluation of properties of refrigerant R410A.
@@ -10,6 +182,8 @@ class R410A(object):
     """
 
     def __init__(self):
+        self.ref_name = 'R410A'
+        self.modelicaModelPath = 'IBPSA.Media.Refrigerants.R410A'
         self.TCri = 345.25          # Critical temperature (K)
         self.pCri = 4926.1e3        # Critical pressure (Pa)
         self.vCri = 0.00205         # Critical volume (m3/kg)
