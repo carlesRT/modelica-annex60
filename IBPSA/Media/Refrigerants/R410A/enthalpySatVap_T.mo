@@ -14,7 +14,7 @@ protected
 
 algorithm
   // Independent variable
-  x := IBPSA.Utilities.Math.Functions.smoothMax(1-T/TCri, 1e-4, 5e-3)^(1/3);
+  x := IBPSA.Utilities.Math.Functions.smoothMax(1-T/fluidConstants[1].criticalTemperature, 1e-4, 5e-3)^(1/3);
   // Pressure of saturated liquid refrigerant
   h := 1000*IBPSA.Utilities.Math.Functions.polynomial(a = a, x = x);
 

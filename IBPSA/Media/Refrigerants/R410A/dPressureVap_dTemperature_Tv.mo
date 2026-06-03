@@ -16,7 +16,7 @@ algorithm
 
   dpdT := R/(v_abs-b);
   for i in 1:size(A, 1) loop
-    dpdT := dpdT + (B[i] - C[i]*k/TCri*Modelica.Math.exp(-k*T/TCri))/(v_abs - b)^(i+1);
+    dpdT := dpdT + (B[i] - C[i]*k/fluidConstants[1].criticalTemperature*Modelica.Math.exp(-k*T/fluidConstants[1].criticalTemperature))/(v_abs - b)^(i+1);
   end for;
 
 annotation (smoothOrder=1,

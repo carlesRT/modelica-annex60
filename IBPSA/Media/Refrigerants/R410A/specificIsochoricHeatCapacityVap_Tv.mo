@@ -26,7 +26,7 @@ algorithm
   cvo := cpo - R;
 
   // Integral of second derivative of pressure w.r.t. temperature
-  integral_of_d2pdT2 := (k/TCri)^2 * Modelica.Math.exp(-k*T/TCri) * sum(C[i]/(i*(v - b)^(i)) for i in 1:size(C, 1));
+  integral_of_d2pdT2 := (k/fluidConstants[1].criticalTemperature)^2 * Modelica.Math.exp(-k*T/fluidConstants[1].criticalTemperature) * sum(C[i]/(i*(v - b)^(i)) for i in 1:size(C, 1));
 
   cv := cvo - T * integral_of_d2pdT2;
 

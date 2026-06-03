@@ -13,7 +13,7 @@ algorithm
 
   p := R*T/(v_abs-b);
   for i in 1:size(A, 1) loop
-    p := p + (A[i] + B[i]*T + C[i]*Modelica.Math.exp(-k*T/TCri))/(v_abs - b)^(i+1);
+    p := p + (A[i] + B[i]*T + C[i]*Modelica.Math.exp(-k*T/fluidConstants[1].criticalTemperature))/(v_abs - b)^(i+1);
   end for;
 
 annotation (smoothOrder=1,

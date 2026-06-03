@@ -17,9 +17,9 @@ protected
 
 algorithm
   // Independent variable
-  x := IBPSA.Utilities.Math.Functions.smoothMax(1-T/TCri, 1e-4, 5e-3) - x0;
+  x := IBPSA.Utilities.Math.Functions.smoothMax(1-T/fluidConstants[1].criticalTemperature, 1e-4, 5e-3) - x0;
   // Pressure of saturated refrigerant vapor
-  p := pCri*Modelica.Math.exp(TCri/T*IBPSA.Utilities.Math.Functions.polynomial(a = a, x = x));
+  p := fluidConstants[1].criticalPressure*Modelica.Math.exp(fluidConstants[1].criticalTemperature/T*IBPSA.Utilities.Math.Functions.polynomial(a = a, x = x));
 
 annotation (smoothOrder=1,
 preferredView="info",Documentation(info="<HTML>
