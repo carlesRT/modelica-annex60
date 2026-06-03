@@ -1,19 +1,59 @@
 within IBPSA.Media.Refrigerants;
 package R410A "Refrigerant R410A"
-  extends Modelica.Icons.VariantsPackage;
+  extends Modelica.Icons.MaterialPropertiesPackage;
+
+  constant Modelica.Media.Interfaces.PartialTwoPhaseMedium.FluidConstants[1]
+    fluidConstants(
+     each chemicalFormula = "50% CH2F2 + 50% CHF2CF3",
+     each structureFormula = "50% CH2F2 + 50% CHF2CF3",
+     each casRegistryNumber = "75-10-5 + 354-33-6",
+     each iupacName = "Mixture of difluoromethane and pentafluoroethane",
+     each molarMass = 0.07258,
+     each criticalTemperature = 345.25,
+     each criticalPressure = 4926.1e3,
+     each criticalMolarVolume = 0.07258/488.9,
+     each normalBoilingPoint = 221.71,
+     each triplePointTemperature = 200,
+     each meltingPoint = 118.15,
+     each acentricFactor = 0.296,
+     each dipoleMoment = 1.99,
+     each triplePointPressure = 29160) "Thermodynamic constants for R410a";
 
 final constant Modelica.Units.SI.SpecificEntropy R=114.55
   "Gas constant for use in Martin-Hou equation of state";
 
-final constant Modelica.Units.SI.Temperature TCri=345.25 "Critical temperature";
-
 final constant Modelica.Units.SI.Temperature T_min=173.15
   "Minimum temperature for correlated properties";
 
-final constant Modelica.Units.SI.AbsolutePressure pCri=4926.1e3
-  "Critical pressure";
+final constant Modelica.Units.SI.Temperature T_max= 273.15 + 120
+  "Maximal temperature for correlated properties";
 
-protected 
+
+
+
+  record SaturationProperties
+  "Saturation properties of two phase medium"
+  extends Modelica.Icons.Record;
+  Modelica.Units.SI.AbsolutePressure psat "Saturation pressure";
+  Modelica.Units.SI.Temperature Tsat "Saturation temperature";
+  end SaturationProperties;
+
+function isentropicExponent
+  "Return isentropic exponent"
+  extends Modelica.Icons.Function;
+    input ThermodynamicState state "Thermodynamic state record";
+    output Modelica.Units.SI.IsentropicExponent gamma "Isentropic exponent";
+
+algorithm
+  gamma := isentropicExponentVap_Tv(state.T,1/state.d);
+    annotation (Documentation(info="<html>
+<p>It calls <a href=\"Modelica://IBPSA.Media.Refrigerants.R410A.isentropicExponentVap_Tv\">isentropicExponentVap_Tv</a>   . 
+</p>
+</html>"));
+end isentropicExponent;
+//setState_dT
+
+protected
   final constant Real A[:] = {-1.721781e2, 2.381558e-1, -4.329207e-4, -6.241072e-7}
     "Coefficients A for Martin-Hou equation of state";
 
