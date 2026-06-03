@@ -33,10 +33,10 @@ def main():
     # Set to True if calibrating for cooling mode
     CoolingMode = False
     # File name and table name for manufacturer data in modelica
-    tableFileName = 'manufacturerData.txt'
+    tableFileName = 'manufacturerData_f23a284.txt'
     tableName = 'ManufacturerData'
     # File name for performance data
-    performanceData = 'somePerformanceData.txt'
+    performanceData = 'somePerformanceData_f23a284.txt'
 
     # Load manufacturer data
     data = hp.calibrate.ManufacturerData(manufacturer, model, CoolingMode)
@@ -78,9 +78,9 @@ def main():
     
     # Refrigerant model
     # Use CoolProp
-    #ref = hp.refrigerants.CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
+    ref = hp.refrigerants.CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
     # Use Python implemented ref
-    ref = hp.refrigerants.R410A()
+    #ref = hp.refrigerants.R410A()
     
     # Fluid model on condenser side
     fluCon = hp.fluids.ConstantPropertyWater()

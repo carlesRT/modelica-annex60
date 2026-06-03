@@ -82,10 +82,10 @@ equation
 
   // Assert statements to verify that the refrigerant temperatures are within
   // bounds of the property data in the refrigerant package
-  assert(port_b.T < ref.fluidConstants[1].criticalTemperature,
+  assert(port_b.T > ref.T_min and port_b.T < ref.fluidConstants[1].criticalTemperature,
     "Condensing temperature must be above the minimum refrigerant temperature
     and below the critical temperature.");
-  assert(port_a.T < ref.fluidConstants[1].criticalTemperature,
+  assert(port_a.T > ref.T_min and port_a.T < ref.fluidConstants[1].criticalTemperature,
     "Evaporating temperature must be above the minimum refrigerant temperature
     and below the critical temperature.");
 

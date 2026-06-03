@@ -30,9 +30,9 @@ class CoolPropRefrigerant(object):
         :return: Isentropic exponent (-).
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.4f' % ref.get_IsentropicExponent_vT(0.025, 289.64)
-           '1.3862'
+           '1.3808'
 
         """
         cp = self.get_SpecificIsobaricHeatCapacity_vT(v, T)
@@ -49,9 +49,9 @@ class CoolPropRefrigerant(object):
         :return: Specific isobaric heat capacity (J/kg-K).
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.2f' % ref.get_SpecificIsobaricHeatCapacity_vT(0.025, 289.64)
-           '1167.01'
+           '1145.22'
 
         """
         cp = PropsSI('Cpmass', 'D', 1./v, 'T', T, self.ref_name)
@@ -66,9 +66,9 @@ class CoolPropRefrigerant(object):
         :return: Specific isochoric heat capacity (J/kg-K).
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.2f' % ref.get_SpecificIsochoricHeatCapacity_vT(0.025, 289.64)
-           '841.85'
+           '829.39'
 
         """
         cv = PropsSI('Cvmass', 'D', 1./v, 'T', T, self.ref_name)
@@ -82,9 +82,9 @@ class CoolPropRefrigerant(object):
         :return: Pressure of saturated liquid refrigerant (Pa).
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.2f' % ref.get_SaturatedLiquidPressure(305.25)
-           '1989639.98'
+           '1993506.85'
 
         """
         pLiq = PropsSI('P', 'Q', 0, 'T', TLiq, self.ref_name)
@@ -98,11 +98,12 @@ class CoolPropRefrigerant(object):
         :return: Pressure of saturated refrigerant vapor (Pa).
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.2f' % ref.get_SaturatedVaporPressure(283.15)
-           '1082792.93'
+           '1084818.45'
 
         """
+        TVap  = min(TVap, self.TCri)
         pVap = PropsSI('P', 'Q', 1, 'T', TVap, self.ref_name)
         return pVap
 
@@ -114,11 +115,12 @@ class CoolPropRefrigerant(object):
         :return: Specific enthalpy of saturated liquid refrigerant (J/kg).
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.2f' % ref.get_SaturatedLiquidEnthalpy(305.25)
-           '252787.45'
+           '252047.78'
 
         """
+        TLiq  = min(TLiq, self.TCri)
         hLiq = PropsSI('H', 'Q', 0, 'T', TLiq, self.ref_name)
         return hLiq
 
@@ -134,9 +136,9 @@ class CoolPropRefrigerant(object):
                   liquid enthalpy was used.
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.2f' % ref.get_SaturatedVaporEnthalpy(283.15)
-           '425094.18'
+           '424049.65'
 
         """
         hVap = PropsSI('H', 'Q', 1, 'T', TVap, self.ref_name)
@@ -154,9 +156,9 @@ class CoolPropRefrigerant(object):
         refrigerant  R410A.
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.2f' % ref.get_VaporPressure(289.64, 0.025)
-           '1083546.30'
+           '1087134.15'
 
         """
         pVap = PropsSI('P', 'D', 1./vVap, 'T', TVap, self.ref_name)
@@ -173,9 +175,9 @@ class CoolPropRefrigerant(object):
         Uses the Martin-Hou equation of state to determine specific volume.
 
         Usage: Type
-           >>> ref = R410A()
+           >>> ref = CoolPropRefrigerant('R410A', 'IBPSA.Media.Refrigerants.R410ACoolProp')
            >>> '%.8f' % ref.get_VaporSpecificVolume(1083546.3, 289.64)
-           '0.02500001'
+           '0.02510488'
 
         """
         v = 1./PropsSI('D', 'P', p, 'T', T, self.ref_name)
