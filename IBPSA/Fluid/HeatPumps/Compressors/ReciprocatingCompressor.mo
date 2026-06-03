@@ -41,11 +41,11 @@ equation
 
   if isOn then
     // Suction pressure
-    pSuc = IBPSA.Utilities.Math.Functions.smoothMin(pEva - pDro, pCon - pDro, 0.01*ref.pCri);
+    pSuc = IBPSA.Utilities.Math.Functions.smoothMin(pEva - pDro, pCon - pDro, 0.01*ref.fluidConstants[1].criticalPressure);
     // Discharge pressure
     pDis = pCon + pDro;
     // Refrigerant mass flow rate
-    k = ref.isentropicExponentVap_Tv(TSuc, vSuc);
+    k = ref.isentropicExponent(ref.setState_dT(1/vSuc, TSuc));
     m_flow = pisDis_norm*pisDis/vSuc*(1 + cleFac
        - cleFac*(PR)^(1/k));
     // Theoretical power of the compressor
